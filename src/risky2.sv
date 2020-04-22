@@ -94,7 +94,8 @@ module risky2(input var sysclk,input var cpu_resetn,output var uart_tx);
     .clk(clk),
     .rstd(rstd),
     .is_data_hazard(is_data_hazard),
-    .irreg_pc(WD_irreg_pc),
+    .irreg_pc(EM_irreg_pc),
+    //.irreg_pc(WD_irreg_pc),
     .FD_pc(FD_pc),
     .FD_inst(FD_inst)
   );
