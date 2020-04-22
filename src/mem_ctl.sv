@@ -27,12 +27,15 @@ module mem_ctl(
   logic [31:0] shifted_w_data;
   logic [3:0] w_enable;
 
+  assign shifted_w_data = shifted_w_data_gen(is_store,mem_access_width,shifted_w_data_b,shifted_w_data_h,shifted_w_data_w,shifted_w_data_none);
+  assign w_enable = w_enable_gen(is_store,mem_access_width,offset);
+
   wire [31:0] row_r_data;
 
-  wire [31:0] shifted_w_data_b;
-  wire [31:0] shifted_w_data_h;
-  wire [31:0] shifted_w_data_w;
-  wire [31:0] shifted_w_data_none;
+  logic [31:0] shifted_w_data_b;
+  logic [31:0] shifted_w_data_h;
+  logic [31:0] shifted_w_data_w;
+  logic [31:0] shifted_w_data_none;
 
   assign shifted_w_data_b = (w_data & 8'hff) << (offset*8);
   assign shifted_w_data_h = (w_data & 16'hffff) << (offset*8);
@@ -76,33 +79,65 @@ module mem_ctl(
     end
   endfunction
 
-  always_comb @(is_store,addr,w_data) begin
-  //always @(negedge clk) begin
+  function [31:0] shifted_w_data_gen;
+    input bit is_store;
+    input [1:0] mem_access_width;
+    input [31:0] shifted_w_data_b;
+    input [31:0] shifted_w_data_h;
+    input [31:0] shifted_w_data_w;
+    input [31:0] shifted_w_data_none;
+
+    begin
       if(is_store) begin
         case (mem_access_width)
           `MEM_BYTE: begin
-            shifted_w_data <= shifted_w_data_b;
-            w_enable <= 4'b0001 << offset;
+            shifted_w_data_gen = shifted_w_data_b;
           end
           `MEM_HALF: begin
-            shifted_w_data <= shifted_w_data_h;
-            w_enable <= 4'b0011 << offset;
+            shifted_w_data_gen = shifted_w_data_h;
           end
           `MEM_WORD: begin
-            shifted_w_data <= shifted_w_data_w;
-            w_enable <= 4'b1111;
+            shifted_w_data_gen = shifted_w_data_w;
           end
           default: begin
-            shifted_w_data <= shifted_w_data_none;
-            w_enable <= 4'b0000;
+            shifted_w_data_gen = shifted_w_data_none;
           end
         endcase
       end
       else begin
-        shifted_w_data <= shifted_w_data_none;
-        w_enable <= 4'b0000;
+        shifted_w_data_gen = shifted_w_data_none;
       end
-  end
+    end
+  endfunction
+
+  
+  function [3:0] w_enable_gen;
+    input bit is_store;
+    input [1:0] mem_access_width;
+    input [1:0] offset;
+    begin
+      if(is_store) begin
+        case (mem_access_width)
+          `MEM_BYTE: begin
+            w_enable_gen = 4'b0001 << offset;
+          end
+          `MEM_HALF: begin
+            w_enable_gen = 4'b0011 << offset;
+          end
+          `MEM_WORD: begin
+            w_enable_gen = 4'b1111;
+          end
+          default: begin
+            w_enable_gen = 4'b0000;
+          end
+        endcase
+      end
+      else begin
+        w_enable_gen = 4'b0000;
+      end
+    end
+  endfunction
+
 
   assign r_data = r_data_gen(row_r_data,mem_access_width,is_load_unsigned,offset);
 endmodule

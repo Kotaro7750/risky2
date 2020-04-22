@@ -39,7 +39,7 @@ module memory_access(
     MW_rd_addr <= rd_addr;
   end
 
-  mem_ctl mem_ctl2(
+  mem_ctl mem_ctl(
     .pc(pc),
     .clk(clk),
     .is_store(is_store),
