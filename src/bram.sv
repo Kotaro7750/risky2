@@ -19,13 +19,8 @@ module bram(pc,clk, w_enable, r_addr, r_data, w_addr, w_data,row_addr);
       if(w_enable[1]) mem[w_addr][15: 8] <= w_data[15: 8];
       if(w_enable[2]) mem[w_addr][23:16] <= w_data[23:16];
       if(w_enable[3]) mem[w_addr][31:24] <= w_data[31:24];
-      //r_addr_reg <= r_addr;
-      //r_data <= mem[r_addr % 32678];
       r_data <= mem[r_addr];
   end
-
-  //assign r_data = mem[r_addr_reg];
-  //assign r_data = mem[r_addr % 32678];
 
   //initial $readmemh("/home/denjo/lecture/3A/experiment/processor/b3exp/benchmarks/Coremark_for_Synthesis/data.hex",mem);
   initial $readmemh("/home/koutarou/develop/risky2/benchmarks/Coremark_for_Synthesis/data.hex",mem);

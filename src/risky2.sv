@@ -63,6 +63,7 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
   logic [3:0]PM_mem_w_enable;
   logic [1:0]PM_mem_access_width;
   logic PM_is_load_unsigned;
+  logic [0:0] PM_hc_access;
 
   //WD
   logic [31:0]WD_pc;
@@ -90,20 +91,6 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
       .sys_rstn_i(rstd)
   );
 
-
-  //ハードウェアカウンタ
-  logic [0:0] PM_hc_access;
-  //logic [31:0] hc_OUT_data;
-
-  //hardware_counter hardware_counter(
-  //    .CLK_IP(clk),
-  //    .RSTN_IP(rstd),
-  //    .COUNTER_OP(hc_OUT_data)
-  //);
-
-  //logic [31:0]r_data_hc;
-  //assign r_data_hc = hc_access == `ENABLE ? hc_OUT_data : MW_r_data;
-  //assign r_data_hc = hc_access == `ENABLE ? hc_OUT_data : r_data;
 
   fetch fetch(
     .clk(clk),
@@ -164,32 +151,6 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
     .EM_is_load_unsigned(EM_is_load_unsigned),
     .EM_irreg_pc(EM_irreg_pc)
   );
-
-
-  //memory_access memory_access(
-  //  .pc(EM_pc),
-  //  //.rstd(rstd),
-  //  .clk(clk),
-  //  .irreg_pc(EM_irreg_pc),
-  //  .w_enable(EM_w_enable),
-  //  .rd_addr(EM_rd_addr),
-  //  .is_store(EM_is_store),
-  //  .is_load(EM_is_load),
-  //  .is_load_unsigned(EM_is_load_unsigned),
-  //  .alu_result(EM_alu_result),
-  //  .mem_access_width(EM_mem_access_width),
-  //  .w_data(EM_w_data),
-  //  .MW_pc(MW_pc),
-  //  .MW_irreg_pc(MW_irreg_pc),
-  //  .MW_r_data(MW_r_data),
-  //  .MW_alu_result(MW_alu_result),
-  //  .MW_is_load(MW_is_load),
-  //  .MW_w_eneble(MW_w_eneble),
-  //  .MW_rd_addr(MW_rd_addr),
-  //  .uart(uart_IN_data),
-  //  .uart_we(uart_we),
-  //  .hc_access(hc_access)
-  //);
 
   pre_memory_access pre_memory_access(
     .pc(EM_pc),
@@ -255,7 +216,6 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
     .w_enable(MW_w_enable),
     .rd_addr(MW_rd_addr),
     .is_load(MW_is_load),
-    //.mem_r_data(r_data_hc),
     .mem_r_data(MW_r_data),
     .alu_result(MW_alu_result),
     .WD_pc(WD_pc),

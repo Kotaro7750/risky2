@@ -26,7 +26,6 @@ module reg_file(
       end
     end
     else if (w_enable == 1) begin
-      //$display("0x%4h: ", pc,"x%02d",w_addr," = ","0x%08h",w_data);
       register_file[w_addr] <= w_data;
     end
   end

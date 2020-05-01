@@ -46,7 +46,6 @@ module decode(
 
   //rs1またはrs2について、命令がレジスタを使用し、かつreadyがdisableならハザー
   //ド
-  //assign is_data_hazard = ((rs1_ready == `DISABLE && alu_op1_type == `OP_TYPE_REG) || (rs2_ready == `DISABLE && alu_op2_type == `OP_TYPE_REG)) ? `ENABLE : `DISABLE; 
   assign is_data_hazard = is_data_hazard_gen(rs1_ready,rs2_ready,alu_op1_type,alu_op2_type,is_store);
 
   function bit is_data_hazard_gen;
@@ -103,23 +102,6 @@ endfunction
     .rs1_ready(rs1_ready),
     .rs2_ready(rs2_ready)
   );
-
-  always_ff@(posedge clk) begin
-    //if (rstd == 1'b0) begin
-    //  DE_pc <= `NOP;
-    //  DE_rs1_data <= `NOP;
-    //  DE_rs2_data <= `NOP;
-    //  DE_imm <= `NOP;
-    //  DE_rd_addr <= `NOP;
-    //  DE_alu_code <= `ALU_NOP;
-    //  DE_alu_op1_type <= `OP_TYPE_NONE;
-    //  DE_alu_op2_type <= `OP_TYPE_NONE;
-    //  DE_w_enable <= `DISABLE;
-    //  DE_is_store <= `DISABLE;
-    //  DE_is_load <= `DISABLE;
-    //  DE_is_halt <= `DISABLE;
-    //end
-  end
 
   always_ff@(negedge clk) begin
     if (rstd == 1'b0) begin

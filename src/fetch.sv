@@ -16,11 +16,8 @@ module fetch(
   output var [31:0]FD_pc,
   output var [31:0]FD_inst
 );
-//テストベンチ回すときはこっちにする
-//module fetch(input var clk,input var rstd,input var is_data_hazard,input var [31:0] irreg_pc,input var [31:0]raw_inst,output var [31:0]FD_inst);
   logic is_branch_hazard;
   logic [31:0]pc;
-  //テストベンチ回すときはコメントアウト
   logic [31:0]raw_inst;
 
   logic [31:0]prev_pc;
@@ -29,7 +26,6 @@ module fetch(
   logic [31:0]inst;
 
   //読み込みのみで、クロック同期なしで繋がっている。
-  //テストベンチのときはコメントアウト
   inst_mem inst_mem(
     .pc(pc),
     .inst(raw_inst)
@@ -37,10 +33,8 @@ module fetch(
 
   always_ff@(posedge clk) begin
     if (rstd == 1'b0) begin
-      //pc <= 32'd0;
       prev_pc <= 32'd0;
       prev_inst <= 32'd0;
-      //is_branch_hazard <= `DISABLE;
     end
     else 
 
@@ -48,17 +42,8 @@ module fetch(
       //データハザードのときに流す用の命令
       prev_pc <= FD_pc;
       prev_inst <= FD_inst;
-      //if (is_data_hazard) begin
-      //  prev_pc <= prev_pc;
-      //  prev_inst <= prev_inst;
-      //end
-      //else begin
-      //  prev_pc <= FD_pc;
-      //  prev_inst <= FD_inst;
-      //end
 
       //ストールしてないなら、普通にフェッチする
-      //if (!is_branch_hazard && !is_data_hazard) begin
       if (!is_branch_hazard) begin
         inst <= raw_inst;
       end
