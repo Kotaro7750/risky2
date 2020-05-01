@@ -1,7 +1,10 @@
 `timescale 1ns / 1ps
 //ok
 
-module inst_mem(input var [31:0]pc,output var [31:0]inst);
+module inst_mem(
+  input var [31:0]pc,
+  output var [31:0]inst
+);
   logic [31:0] instRAM [0:32767];             //32bitレジスタ*32
 
   assign inst = instRAM[pc >> 2];
