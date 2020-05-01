@@ -1,17 +1,26 @@
 `timescale 1ns / 1ps
 `include "define.svh"
 
-module bram(pc,clk, w_enable, r_addr, r_data, w_addr, w_data,row_addr);
-  input [31:0]pc;
-  input clk;
-  input  [3:0] w_enable; // 書き込むバイトは1, 書き込まないでそのままにするバイトは0を指定
-  input  [31:0] r_addr, w_addr;
-  input  [31:0] w_data;
-  input  [31:0] row_addr;
-  output logic [31:0] r_data;
+module bram(
+  input var [31:0]pc,
+  input var bit clk,
+  input var [3:0]w_enable,
+  input var [31:0]r_addr,
+  input var [31:0]w_addr,
+  input var [31:0]w_data,
+  input var [31:0]row_addr,
+  output var [31:0]r_data
+);
+  //input [31:0]pc;
+  //input clk;
+  //input  [3:0] w_enable; // 書き込むバイトは1, 書き込まないでそのままにするバイトは0を指定
+  //input  [31:0] r_addr, w_addr;
+  //input  [31:0] w_data;
+  //input  [31:0] row_addr;
+  //output logic [31:0] r_data;
 
   //TODO もっと大きく
-  reg [31:0] mem [0:32767];
+  logic [31:0] mem [0:32767];
 
   always_ff @(posedge clk) begin
       if (w_enable) $display("0x%4h: ", pc,"mem[0x%08h]",row_addr," <- ","0x%h",w_data);

@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 `include "define.svh"
 
-module pre_mem_ctl(
+module memory_ctl(
   input var [31:0]pc,
   input var bit clk,
   input var bit is_store,
@@ -17,18 +17,8 @@ module pre_mem_ctl(
   output var logic uart_we
 );
 
-  //lineはmemの何個目なのか
-  //wire [31:0] line;
-  //offsetは4バイトのうちの何個目か
-  //wire [1:0] offset;
-
   assign line = addr >> 2;
   assign offset = addr - ((addr >> 2)<<2);
-
-  //reg [31:0] shifted_w_data;
-  //reg [3:0] w_enable;
-  //logic [31:0] shifted_w_data;
-  //logic [3:0] w_enable;
 
   assign shifted_w_data = shifted_w_data_gen(is_store,mem_access_width,shifted_w_data_b,shifted_w_data_h,shifted_w_data_w,shifted_w_data_none);
   assign w_enable = w_enable_gen(is_store,mem_access_width,offset);
@@ -45,10 +35,6 @@ module pre_mem_ctl(
 
   assign uart = shifted_w_data_b & 8'hff;
   assign uart_we = ((addr == `UART_ADDR) && (is_store == `ENABLE)) ? 1'b1 : 1'b0;
-  //assign uart_we = addr == `UART_ADDR ? 1'b1 : 1'b0;
-
-
-  //ram ram(pc,clk, w_enable, line, row_r_data, line, shifted_w_data);
 
   function automatic [31:0] shifted_w_data_gen;
     input bit is_store;
