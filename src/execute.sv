@@ -31,15 +31,10 @@ module execute(
   logic [31:0]npc_op1;
   logic [31:0]npc_op2;
   logic [31:0]alu_result;
-  logic [31:0]alu_result_reg;
   logic [1:0]mem_access_width;
   logic [31:0]irreg_pc;
   logic is_branch;
   logic br_taken;
-
-  always_ff@(posedge clk) begin
-    alu_result_reg <= alu_result;
-  end
 
   always_ff@(negedge clk) begin
     if (rstd == 1'b0) begin
@@ -56,8 +51,7 @@ module execute(
     end
     else begin
       EM_pc <= pc;
-      //EM_alu_result <= alu_result;
-      EM_alu_result <= alu_result_reg;
+      EM_alu_result <= alu_result;
       EM_w_data <= src2_data;
       EM_mem_access_width <= mem_access_width;
       EM_rd_addr <= rd_addr;
