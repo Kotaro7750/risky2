@@ -3,7 +3,7 @@
 module memory_access(
   input var [31:0]pc,
   input var bit clk,
-  input var bit rstd,
+  //input var bit rstd,
   input var [31:0]irreg_pc,
   input var bit w_enable,
   input var [4:0]rd_addr,
@@ -29,7 +29,7 @@ module memory_access(
 
   assign hc_access = alu_result == `HARDWARE_COUNTER_ADDR ? `ENABLE:`DISABLE;
 
-  always@(negedge clk) begin
+  always_ff@(negedge clk) begin
     MW_pc <= pc;
     MW_irreg_pc <= irreg_pc;
     MW_r_data <= r_data;

@@ -37,10 +37,10 @@ module fetch(
 
   always_ff@(posedge clk) begin
     if (rstd == 1'b0) begin
-      pc <= 32'd0;
+      //pc <= 32'd0;
       prev_pc <= 32'd0;
       prev_inst <= 32'd0;
-      is_branch_hazard <= `DISABLE;
+      //is_branch_hazard <= `DISABLE;
     end
     else 
 

@@ -22,18 +22,21 @@ module decoder(
   //reg [4:0] src2_reg;
   //reg [4:0] dst_reg;
 
-  wire [6:0] opcode;
-  wire [2:0] opcode_2;
-  wire [6:0] opcode_3;
+  //wire [6:0] opcode;
+  //wire [2:0] opcode_2;
+  //wire [6:0] opcode_3;
+  logic [6:0] opcode;
+  logic [2:0] opcode_2;
+  logic [6:0] opcode_3;
 
   assign opcode = inst_b[6:0];
   assign opcode_2 = inst_b[14:12];
   assign opcode_3 = inst_b[31:25];
 
   //これ以降はreg用
-  always@(inst_b) begin
+  always_ff@(inst_b,opcode,opcode_2,opcode_3) begin
     is_halt <= `DISABLE;
-    case (opcode)
+    unique case (opcode)
       //ADDi ~ SRAi
       7'b0010011: begin
         alu_op1_type <= `OP_TYPE_REG;
@@ -52,7 +55,7 @@ module decoder(
           //ADDi,SLTi,SLTiu,XORi,ORi,ANDi
           imm <= {{20{inst_b[31]}},inst_b[31:20]};
 
-          case (opcode_2)
+          unique case (opcode_2)
             //ADDi
             3'b000: begin
               alu_code <= `ALU_ADD;
@@ -118,7 +121,7 @@ module decoder(
 
         imm <= 32'b0;
 
-        case (opcode_2)
+        unique case (opcode_2)
           //ADD,SUB
           3'b000: begin
             if (opcode_3 == 7'b0000000) begin
@@ -265,7 +268,7 @@ module decoder(
 
         imm <= {{19{inst_b[31]}},inst_b[31],inst_b[7],inst_b[30:25],inst_b[11:8],{1'b0}};
 
-        case (opcode_2)
+        unique case (opcode_2)
           3'b000: begin
             //Beq
             alu_code <= `ALU_BEQ;
@@ -309,7 +312,7 @@ module decoder(
         dst_reg <= `REG_NONE;
 
         imm <= {{20{inst_b[31]}},inst_b[31:25],inst_b[11:7]};
-      case (opcode_2)
+      unique case (opcode_2)
         3'b000: begin
           //Sb
           alu_code <= `ALU_SB;
@@ -341,7 +344,7 @@ module decoder(
         dst_reg <= inst_b[11:7];
 
         imm <= {{20{inst_b[31]}},inst_b[31:20]};
-        case (opcode_2)
+        unique case (opcode_2)
           3'b000: begin
             //Lb
             alu_code <= `ALU_LB;

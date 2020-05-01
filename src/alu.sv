@@ -18,7 +18,8 @@ module alu(
   assign op1_signed = $signed(op1);
   assign op2_signed = $signed(op2);
 
-  always@(alucode,op1,op2) begin
+  always_ff@(alucode,op1,op2) begin
+  //always_comb begin
     case (alucode)
       `ALU_LUI: begin
         alu_result <= op2;
@@ -252,6 +253,14 @@ module alu(
       end
 
       `ALU_NOP: begin
+        alu_result <= 32'd0;
+        is_branch <= `DISABLE;
+        br_taken <= `DISABLE;
+        mem_access_width <= `MEM_NONE;
+        is_load_unsigned <= `DISABLE;
+      end
+
+      default: begin
         alu_result <= 32'd0;
         is_branch <= `DISABLE;
         br_taken <= `DISABLE;

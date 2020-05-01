@@ -3,7 +3,7 @@
 module writeback(
   input var [31:0]pc,
   input var bit clk,
-  input var bit rstd,
+  //input var bit rstd,
   input var [31:0]irreg_pc,
   input var bit w_enable,
   input var [4:0]rd_addr,
@@ -19,7 +19,14 @@ module writeback(
 
   logic [31:0]writeback_data;
 
-  always@(negedge clk) begin
+  always_ff@(posedge clk) begin
+    if (w_enable) begin
+      if (is_load) $display("0x%4h: ", pc,"x%02d",rd_addr," = ","0x%08h",writeback_data," 0x%08h",writeback_data," <- ","mem[0x%08h]",alu_result);
+      else $display("0x%4h: ", pc,"x%02d",rd_addr," = ","0x%08h",writeback_data);
+    end 
+  end
+
+  always_ff@(negedge clk) begin
     WD_pc <= pc;
     WD_irreg_pc <= irreg_pc;
     WD_writeback_data <= writeback_data;

@@ -2,6 +2,7 @@
 
 //クロックエッジで書き込み、読み込みは同期なしのレジスタファイル
 module reg_file(
+  input var [31:0] pc,
   input var bit clk,
   input var bit rstd,
   input var [4:0]rs1_addr,
@@ -18,13 +19,14 @@ module reg_file(
   assign rs1_data = rs1_addr == 5'd0 ? 32'd0 : register_file[rs1_addr];
   assign rs2_data = rs2_addr == 5'd0 ? 32'd0 : register_file[rs2_addr];
 
-  always @(negedge rstd or posedge clk) begin
+  always_ff @(negedge rstd or posedge clk) begin
     if (rstd == 0) begin
       for (integer i = 0; i < 32; i = i+1) begin
         register_file[i] <= 32'h00000000;
       end
     end
     else if (w_enable == 1) begin
+      //$display("0x%4h: ", pc,"x%02d",w_addr," = ","0x%08h",w_data);
       register_file[w_addr] <= w_data;
     end
   end

@@ -31,22 +31,42 @@ module execute(
   logic [31:0]npc_op1;
   logic [31:0]npc_op2;
   logic [31:0]alu_result;
+  logic [31:0]alu_result_reg;
   logic [1:0]mem_access_width;
   logic [31:0]irreg_pc;
   logic is_branch;
   logic br_taken;
 
-  always@(negedge clk) begin
-    EM_pc <= pc;
-    EM_alu_result <= alu_result;
-    EM_w_data <= src2_data;
-    EM_mem_access_width <= mem_access_width;
-    EM_rd_addr <= rd_addr;
-    EM_w_enable <= w_enable;
-    EM_is_store <= is_store;
-    EM_is_load <= is_load;
-    EM_is_load_unsigned <= is_load_unsigned;
-    EM_irreg_pc <= irreg_pc;
+  always_ff@(posedge clk) begin
+    alu_result_reg <= alu_result;
+  end
+
+  always_ff@(negedge clk) begin
+    if (rstd == 1'b0) begin
+      EM_pc <= 32'd0;
+      EM_alu_result <= 32'd0;
+      EM_w_data <= 32'd0;
+      EM_mem_access_width <= 2'd0;
+      EM_rd_addr <= 5'd0;
+      EM_w_enable <= `DISABLE;
+      EM_is_store <= `DISABLE;
+      EM_is_load <= `DISABLE;
+      EM_is_load_unsigned <= `DISABLE;
+      EM_irreg_pc <= 32'd0;
+    end
+    else begin
+      EM_pc <= pc;
+      //EM_alu_result <= alu_result;
+      EM_alu_result <= alu_result_reg;
+      EM_w_data <= src2_data;
+      EM_mem_access_width <= mem_access_width;
+      EM_rd_addr <= rd_addr;
+      EM_w_enable <= w_enable;
+      EM_is_store <= is_store;
+      EM_is_load <= is_load;
+      EM_is_load_unsigned <= is_load_unsigned;
+      EM_irreg_pc <= irreg_pc;
+    end
   end
 
   exec_switcher exec_switcher(

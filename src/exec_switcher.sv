@@ -22,7 +22,7 @@ module exec_switcher(
   assign alu_op1 = (alu_op1_type == `OP_TYPE_REG) ? rs1 : (alu_op1_type == `OP_TYPE_IMM) ? imm : (alu_op1_type == `OP_TYPE_PC) ? pc :  32'd0;
   assign alu_op2 = (alu_op2_type == `OP_TYPE_REG) ? rs2 : (alu_op2_type == `OP_TYPE_IMM) ? imm : (alu_op2_type == `OP_TYPE_PC) ? pc :  32'd0;
 
-  always@(*) begin
+  always_comb begin
     case (alu_code)
       `ALU_JAL: begin
         npc_op1 <= pc;

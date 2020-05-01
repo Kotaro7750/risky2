@@ -14,7 +14,7 @@ module risky2_tb;
     #20;
     rstd <= 1;
 
-    #410065408 $finish;
+    #410265408 $finish;
     
   end
 

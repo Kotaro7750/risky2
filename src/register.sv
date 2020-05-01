@@ -3,6 +3,7 @@
 
 //reg_readyとreg_fileをまとめる。
 module register(
+  input var [31:0] pc_WB,
   input var bit clk,
   input var bit rstd,
   input var [4:0]rs1_addr,
@@ -22,6 +23,7 @@ module register(
   //読みは垂れ流しなので、decodeで適切にさばく。
   reg_file reg_file(
     //input
+    .pc(pc_WB),
     .clk(clk),
     .rstd(rstd),
     .rs1_addr(rs1_addr), //rs1のアドレス
