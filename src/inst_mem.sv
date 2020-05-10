@@ -12,9 +12,9 @@ module inst_mem(
   //initial $readmemh("/home/koutarou/develop/risky2/benchmarks/tests/IntRegImm/code.hex",instRAM);
   //initial $readmemh("/home/koutarou/develop/risky2/benchmarks/tests/ZeroRegister/code.hex",instRAM);
   //initial $readmemh("/home/koutarou/develop/risky2/benchmarks/tests/ControlTransfer/code.hex",instRAM);
-  //initial $readmemh("/home/koutarou/develop/risky2/benchmarks/tests/LoadAndStore/code.hex",instRAM);
+  initial $readmemh("/home/koutarou/develop/risky2/benchmarks/tests/LoadAndStore/code.hex",instRAM);
   //initial $readmemh("/home/koutarou/develop/risky2/benchmarks/tests/Uart/code.hex",instRAM);
   //initial $readmemh("/home/koutarou/develop/risky2/benchmarks/tests/HardwareCounter/code.hex",instRAM);
-  initial $readmemh("/home/koutarou/develop/risky2/benchmarks/Coremark_for_Synthesis/prog.hex",instRAM);
+  //initial $readmemh("/home/koutarou/develop/risky2/benchmarks/Coremark_for_Synthesis/prog.hex",instRAM);
   //initial $readmemh("/home/koutarou/develop/risky2/benchmarks/Coremark/prog.hex",instRAM);
 endmodule

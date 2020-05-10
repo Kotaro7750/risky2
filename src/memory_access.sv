@@ -1,25 +1,11 @@
 `timescale 1ns / 1ps
 
+import BasicTypes::*;
+import PipelineTypes::*;
+
 module memory_access(
-  input var [31:0]pc,
-  input var bit clk,
-  input var bit rstd,
-  input var [31:0]irreg_pc,
-  input var bit w_enable,
-  input var [4:0]rd_addr,
-  input var bit is_store,
-  input var bit is_load,
-  input var bit is_load_unsigned,
-  input var [31:0]alu_result,
-  input var [1:0]mem_access_width,
-  input var [31:0]w_data,
-  output var [31:0]MW_pc,
-  output var [31:0]MW_irreg_pc,
-  output var [31:0]MW_r_data,
-  output var [31:0]MW_alu_result,
-  output var logic MW_is_load,
-  output var logic MW_w_enable,
-  output var [4:0]MW_rd_addr,
+  MemoryAccessStageIF.ThisStage port,
+  ExecuteStageIF.NextStage prev,
   output var [7:0]uart,
   output var logic uart_we
 );
@@ -33,38 +19,41 @@ module memory_access(
   logic [31:0]r_data;
   logic hc_access;
 
-  assign hc_access = (alu_result == `HARDWARE_COUNTER_ADDR && is_load) ? `ENABLE : `DISABLE;
-  assign r_data = r_data_gen(row_r_data,mem_access_width,is_load_unsigned,offset,hc_access,hc_OUT_data);
+  WriteBackStagePipeReg nextStage;
+  assign port.nextStage = nextStage;
+
+  assign hc_access = (prev.nextStage.alu_result == `HARDWARE_COUNTER_ADDR && prev.nextStage.is_load) ? `ENABLE : `DISABLE;
+  assign r_data = r_data_gen(row_r_data,prev.nextStage.mem_access_width,prev.nextStage.is_load_unsigned,offset,hc_access,hc_OUT_data);
 
   bram bram(
-    .pc(pc),
-    .clk(clk),
+    .pc(prev.nextStage.pc),
+    .clk(port.clk),
     .w_enable(mem_w_enable),
     .r_addr(line),
     .w_addr(line),
     .w_data(shifted_w_data),
-    .row_addr(alu_result),
+    .row_addr(prev.nextStage.alu_result),
     .r_data(row_r_data)
   );
 
-  always_ff@(negedge clk) begin
-    MW_pc <= pc;
-    MW_irreg_pc <= irreg_pc;
-    MW_r_data <= r_data;
-    MW_alu_result <= alu_result;
-    MW_is_load <= is_load;
-    MW_w_enable <= w_enable;
-    MW_rd_addr <= rd_addr;
+  always_ff@(negedge port.clk) begin
+    nextStage.pc <= prev.nextStage.pc;
+    nextStage.irreg_pc <= prev.nextStage.irreg_pc;
+    nextStage.r_data <= r_data;
+    nextStage.alu_result <= prev.nextStage.alu_result;
+    nextStage.is_load <= prev.nextStage.is_load;
+    nextStage.w_enable <= prev.nextStage.w_enable;
+    nextStage.rd_addr <= prev.nextStage.rd_addr;
   end
 
   memory_ctl memory_ctl(
-    .pc(pc),
-    .clk(clk),
-    .is_store(is_store),
-    .is_load_unsigned(is_load_unsigned),
-    .addr(alu_result),
-    .mem_access_width(mem_access_width),
-    .w_data(w_data),
+    .pc(prev.nextStage.pc),
+    .clk(port.clk),
+    .is_store(prev.nextStage.is_store),
+    .is_load_unsigned(prev.nextStage.is_load_unsigned),
+    .addr(prev.nextStage.alu_result),
+    .mem_access_width(prev.nextStage.mem_access_width),
+    .w_data(prev.nextStage.w_data),
     .w_enable(mem_w_enable),
     .line(line),
     .offset(offset),
@@ -77,8 +66,8 @@ module memory_access(
   logic [31:0]hc_OUT_data;
 
   hardware_counter hardware_counter(
-      .CLK_IP(clk),
-      .RSTN_IP(rstd),
+      .CLK_IP(port.clk),
+      .RSTN_IP(port.rst),
       .COUNTER_OP(hc_OUT_data)
   );
 
@@ -92,7 +81,7 @@ module memory_access(
     input [31:0] hc_OUT_data;
 
     begin
-      if (hc_access == `ENABLE && is_load) begin
+      if (hc_access == `ENABLE && prev.nextStage.is_load) begin
         r_data_gen = hc_OUT_data;
       end
       else begin

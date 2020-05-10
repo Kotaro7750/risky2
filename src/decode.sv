@@ -1,36 +1,21 @@
 `timescale 1ns / 1ps
 `include "define.svh"
 
+import BasicTypes::*;
+import PipelineTypes::*;
+
 //Dステージと、WBステージで使用。
 module decode(
-  input var [31:0]pc,
-  input var clk,
-  input var rstd,
-  input var [31:0]inst, //パイプラインレジスタからの配線
-  input var logic w_enable_WB, //WBで書き込むかどうか
-  input var [4:0]w_addr_WB, //WBで書き込むアドレス
-  input var [31:0]w_data_WB, //WBで書き込むデータ
-  input var [31:0]pc_WB,
-  output var bit is_data_hazard, //このクロックでデコードした命令がデータハザードを起こすか
-  //output var logic is_data_hazard, //このクロックでデコードした命令がデータハザードを起こすか
-  output var [31:0]DE_pc,
-  output var [31:0]DE_rs1_data,
-  output var [31:0]DE_rs2_data,
-  output var [31:0]DE_imm,
-  output var [4:0]DE_rd_addr,
-  output var [5:0]DE_alu_code,
-  output var [1:0]DE_alu_op1_type,
-  output var [1:0]DE_alu_op2_type,
-  output var logic DE_w_enable,
-  output var logic DE_is_store,
-  output var logic DE_is_load,
-  output var logic DE_is_halt
+  DecodeStageIF.ThisStage port,
+  FetchStageIF.NextStage prev,
+  RegisterFileIF.DecodeStage writeBack,
+  input var [31:0]pc_WB
 );
   
-  logic [4:0]rs1_addr; //rs1アドレス
-  logic [4:0]rs2_addr; //rs2アドレス
-  logic [4:0]rd_addr; //rdアドレス
-  logic [31:0]imm; //即値
+  RegAddr rs1_addr; //rs1アドレス
+  RegAddr rs2_addr; //rs2アドレス
+  RegAddr rd_addr; //rdアドレス
+  BasicData imm; //即値
   logic [5:0]alu_code; //aluコード
   logic [1:0]alu_op1_type; //オペランド1タイプ
   logic [1:0]alu_op2_type; //オペランド2タイプ
@@ -41,12 +26,15 @@ module decode(
   logic rs1_ready; //rs1が使用可能か
   logic rs2_ready; //rs2が使用可能か
 
-  logic [31:0]rs1_data; //rs1のデータ
-  logic [31:0]rs2_data; //rs2のデータ
+  BasicData rs1_data; //rs1のデータ
+  BasicData rs2_data; //rs2のデータ
+
+  ExecuteStagePipeReg nextStage;
+  assign port.nextStage = nextStage;
 
   //rs1またはrs2について、命令がレジスタを使用し、かつreadyがdisableならハザー
   //ド
-  assign is_data_hazard = is_data_hazard_gen(rs1_ready,rs2_ready,alu_op1_type,alu_op2_type,is_store);
+  assign port.isDataHazard = is_data_hazard_gen(rs1_ready,rs2_ready,alu_op1_type,alu_op2_type,is_store);
 
   function bit is_data_hazard_gen;
     input bit rs1_ready;
@@ -69,7 +57,7 @@ endfunction
   //decodeで行う。
   decoder decoder(
     //input
-    .inst_b(inst), //命令ビット列
+    .inst_b(prev.nextStage.inst), //命令ビット列
     //output
     .src1_reg(rs1_addr), //rs1のアドレス
     .src2_reg(rs2_addr), //rs2のアドレス
@@ -87,15 +75,18 @@ endfunction
   register register(
     //input
     .pc_WB(pc_WB),
-    .clk(clk),
-    .rstd(rstd),
+    .clk(port.clk),
+    .rstd(port.rst),
     .rs1_addr(rs1_addr),
     .rs2_addr(rs2_addr),
-    .wb_enable(w_enable_WB),
-    .wb_addr(w_addr_WB),
-    .wb_data(w_data_WB),
-    .prev_w_enable(DE_w_enable),
-    .prev_rd_addr(DE_rd_addr),
+    //.wb_enable(w_enable_WB),
+    //.wb_addr(w_addr_WB),
+    //.wb_data(w_data_WB),
+    .wb_enable(writeBack.wEnable),
+    .wb_addr(writeBack.rdAddr),
+    .wb_data(writeBack.wData),
+    .prev_w_enable(nextStage.w_enable),
+    .prev_rd_addr(nextStage.rd_addr),
     //output
     .rs1_data(rs1_data),
     .rs2_data(rs2_data),
@@ -103,50 +94,50 @@ endfunction
     .rs2_ready(rs2_ready)
   );
 
-  always_ff@(negedge clk) begin
-    if (rstd == 1'b0) begin
-      DE_pc <= `NOP;
-      DE_rs1_data <= `NOP;
-      DE_rs2_data <= `NOP;
-      DE_imm <= `NOP;
-      DE_rd_addr <= `NOP;
-      DE_alu_code <= `ALU_NOP;
-      DE_alu_op1_type <= `OP_TYPE_NONE;
-      DE_alu_op2_type <= `OP_TYPE_NONE;
-      DE_w_enable <= `DISABLE;
-      DE_is_store <= `DISABLE;
-      DE_is_load <= `DISABLE;
-      DE_is_halt <= `DISABLE;
+  always_ff@(negedge port.clk) begin
+    if (port.rst == 1'b0) begin
+      nextStage.pc <= `NOP;
+      nextStage.rs1_data <= `NOP;
+      nextStage.rs2_data <= `NOP;
+      nextStage.imm <= `NOP;
+      nextStage.rd_addr <= `NOP;
+      nextStage.alu_code <= `ALU_NOP;
+      nextStage.alu_op1_type <= `OP_TYPE_NONE;
+      nextStage.alu_op2_type <= `OP_TYPE_NONE;
+      nextStage.w_enable <= `DISABLE;
+      nextStage.is_store <= `DISABLE;
+      nextStage.is_load <= `DISABLE;
+      nextStage.is_halt <= `DISABLE;
     end
 
-    if (is_data_hazard == `ENABLE) begin
-      DE_pc <= `NOP;
-      DE_rs1_data <= `NOP;
-      DE_rs2_data <= `NOP;
-      DE_imm <= `NOP;
-      DE_rd_addr <= `NOP;
-      DE_alu_code <= `ALU_NOP;
-      DE_alu_op1_type <= `OP_TYPE_NONE;
-      DE_alu_op2_type <= `OP_TYPE_NONE;
-      DE_w_enable <= `DISABLE;
-      DE_is_store <= `DISABLE;
-      DE_is_load <= `DISABLE;
-      DE_is_halt <= `DISABLE;
+    if (port.isDataHazard == `ENABLE) begin
+      nextStage.pc <= `NOP;
+      nextStage.rs1_data <= `NOP;
+      nextStage.rs2_data <= `NOP;
+      nextStage.imm <= `NOP;
+      nextStage.rd_addr <= `NOP;
+      nextStage.alu_code <= `ALU_NOP;
+      nextStage.alu_op1_type <= `OP_TYPE_NONE;
+      nextStage.alu_op2_type <= `OP_TYPE_NONE;
+      nextStage.w_enable <= `DISABLE;
+      nextStage.is_store <= `DISABLE;
+      nextStage.is_load <= `DISABLE;
+      nextStage.is_halt <= `DISABLE;
     end
 
     else begin
-      DE_pc <= pc;
-      DE_rs1_data <= rs1_data;
-      DE_rs2_data <= rs2_data;
-      DE_imm <= imm;
-      DE_rd_addr <= rd_addr;
-      DE_alu_code <= alu_code;
-      DE_alu_op1_type <= alu_op1_type;
-      DE_alu_op2_type <= alu_op2_type;
-      DE_w_enable <= reg_w_enable;
-      DE_is_store <= is_store;
-      DE_is_load <= is_load;
-      DE_is_halt <= is_halt;
+      nextStage.pc <= prev.nextStage.pc;
+      nextStage.rs1_data <= rs1_data;
+      nextStage.rs2_data <= rs2_data;
+      nextStage.imm <= imm;
+      nextStage.rd_addr <= rd_addr;
+      nextStage.alu_code <= alu_code;
+      nextStage.alu_op1_type <= alu_op1_type;
+      nextStage.alu_op2_type <= alu_op2_type;
+      nextStage.w_enable <= reg_w_enable;
+      nextStage.is_store <= is_store;
+      nextStage.is_load <= is_load;
+      nextStage.is_halt <= is_halt;
     end
   end
 endmodule
