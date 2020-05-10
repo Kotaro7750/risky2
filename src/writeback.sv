@@ -26,13 +26,11 @@ module writeback(
     end 
   end
 
-  always_ff@(negedge clk) begin
-    WD_pc <= pc;
-    WD_irreg_pc <= irreg_pc;
-    WD_writeback_data <= writeback_data;
-    WD_w_enable <= w_enable;
-    WD_rd_addr <= rd_addr;
-  end
+  assign  WD_pc = pc;
+  assign  WD_irreg_pc = irreg_pc;
+  assign  WD_writeback_data = writeback_data;
+  assign  WD_w_enable = w_enable;
+  assign  WD_rd_addr = rd_addr;
 
   writeback_gen writeback_gen(
     .is_load(is_load),

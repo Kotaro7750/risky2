@@ -1,34 +1,77 @@
 `timescale 1ns / 1ps
-`include "define.svh"
 
-module mem_access(
-  input var logic clk,
-  input var logic rstd,
+module memory_access(
   input var [31:0]pc,
+  input var bit clk,
+  input var bit rstd,
   input var [31:0]irreg_pc,
-  input var [31:0]alu_result,
-  input var logic is_load,
-  input var logic w_enable,
+  input var bit w_enable,
   input var [4:0]rd_addr,
-  input var [31:0]line,
-  input var [1:0]offset,
-  input var [31:0]shifted_w_data,
-  input var [3:0]mem_w_enable,
-  input var [1:0]mem_access_width,
+  input var bit is_store,
+  input var bit is_load,
   input var bit is_load_unsigned,
-  input var bit hc_access,
+  input var [31:0]alu_result,
+  input var [1:0]mem_access_width,
+  input var [31:0]w_data,
   output var [31:0]MW_pc,
   output var [31:0]MW_irreg_pc,
   output var [31:0]MW_r_data,
   output var [31:0]MW_alu_result,
   output var logic MW_is_load,
   output var logic MW_w_enable,
-  output var [4:0]MW_rd_addr
+  output var [4:0]MW_rd_addr,
+  output var [7:0]uart,
+  output var logic uart_we
 );
-  logic [31:0] row_r_data;
-  logic [31:0] r_data;
 
-  bram bram(pc,clk, mem_w_enable, line, row_r_data, line, shifted_w_data,alu_result);
+  logic [31:0]line;
+  logic [1:0]offset;
+  logic [3:0]mem_w_enable;
+  logic [31:0]shifted_w_data;
+
+  logic [31:0]row_r_data;
+  logic [31:0]r_data;
+  logic hc_access;
+
+  assign hc_access = (alu_result == `HARDWARE_COUNTER_ADDR && is_load) ? `ENABLE : `DISABLE;
+  assign r_data = r_data_gen(row_r_data,mem_access_width,is_load_unsigned,offset,hc_access,hc_OUT_data);
+
+  bram bram(
+    .pc(pc),
+    .clk(clk),
+    .w_enable(mem_w_enable),
+    .r_addr(line),
+    .w_addr(line),
+    .w_data(shifted_w_data),
+    .row_addr(alu_result),
+    .r_data(row_r_data)
+  );
+
+  always_ff@(negedge clk) begin
+    MW_pc <= pc;
+    MW_irreg_pc <= irreg_pc;
+    MW_r_data <= r_data;
+    MW_alu_result <= alu_result;
+    MW_is_load <= is_load;
+    MW_w_enable <= w_enable;
+    MW_rd_addr <= rd_addr;
+  end
+
+  memory_ctl memory_ctl(
+    .pc(pc),
+    .clk(clk),
+    .is_store(is_store),
+    .is_load_unsigned(is_load_unsigned),
+    .addr(alu_result),
+    .mem_access_width(mem_access_width),
+    .w_data(w_data),
+    .w_enable(mem_w_enable),
+    .line(line),
+    .offset(offset),
+    .shifted_w_data(shifted_w_data),
+    .uart(uart),
+    .uart_we(uart_we)
+  );
 
   //ハードウェアカウンタ
   logic [31:0]hc_OUT_data;
@@ -39,7 +82,6 @@ module mem_access(
       .COUNTER_OP(hc_OUT_data)
   );
 
-  assign r_data = r_data_gen(row_r_data,mem_access_width,is_load_unsigned,offset,hc_access,hc_OUT_data);
 
   function automatic [31:0] r_data_gen;
     input [31:0] row_r_data;
@@ -77,14 +119,4 @@ module mem_access(
       end
     end
   endfunction
-
-  always_ff@(negedge clk) begin
-    MW_pc <= pc;
-    MW_irreg_pc <= irreg_pc;
-    MW_r_data <= r_data;
-    MW_alu_result <= alu_result;
-    MW_is_load <= is_load;
-    MW_w_enable <= w_enable;
-    MW_rd_addr <= rd_addr;
-  end
 endmodule

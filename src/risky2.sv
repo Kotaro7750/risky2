@@ -50,21 +50,6 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
   logic MW_w_enable;
   logic [4:0]MW_rd_addr;
 
-  //PM
-  logic [31:0]PM_pc;
-  logic [31:0]PM_irreg_pc;
-  logic [31:0]PM_alu_result;
-  logic PM_is_load;
-  logic PM_w_enable;
-  logic [4:0]PM_rd_addr;
-  logic [31:0]PM_line;
-  logic [1:0]PM_offset;
-  logic [31:0]PM_shifted_w_data;
-  logic [3:0]PM_mem_w_enable;
-  logic [1:0]PM_mem_access_width;
-  logic PM_is_load_unsigned;
-  logic [0:0] PM_hc_access;
-
   //WD
   logic [31:0]WD_pc;
   logic [31:0]WD_irreg_pc;
@@ -152,10 +137,10 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
     .EM_irreg_pc(EM_irreg_pc)
   );
 
-  pre_memory_access pre_memory_access(
+  memory_access memory_access(
     .pc(EM_pc),
-    //.rstd(rstd),
     .clk(clk),
+    .rstd(rstd),
     .irreg_pc(EM_irreg_pc),
     .w_enable(EM_w_enable),
     .rd_addr(EM_rd_addr),
@@ -165,46 +150,15 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
     .alu_result(EM_alu_result),
     .mem_access_width(EM_mem_access_width),
     .w_data(EM_w_data),
-    .PM_pc(PM_pc),
-    .PM_irreg_pc(PM_irreg_pc),
-    .PM_alu_result(PM_alu_result),
-    .PM_is_load(PM_is_load),
-    .PM_w_enable(PM_w_enable),
-    .PM_rd_addr(PM_rd_addr),
-    .PM_line(PM_line),
-    .PM_offset(PM_offset),
-    .PM_shifted_w_data(PM_shifted_w_data),
-    .PM_mem_w_enable(PM_mem_w_enable),
-    .PM_mem_access_width(PM_mem_access_width),
-    .PM_is_load_unsigned(PM_is_load_unsigned),
-    .uart(uart_IN_data),
-    .uart_we(uart_we),
-    .PM_hc_access(PM_hc_access)
-  );
-
-  mem_access mem_access(
-    .clk(clk),
-    .rstd(rstd),
-    .pc(PM_pc),
-    .irreg_pc(PM_irreg_pc),
-    .alu_result(PM_alu_result),
-    .is_load(PM_is_load),
-    .w_enable(PM_w_enable),
-    .rd_addr(PM_rd_addr),
-    .line(PM_line),
-    .offset(PM_offset),
-    .shifted_w_data(PM_shifted_w_data),
-    .mem_w_enable(PM_mem_w_enable),
-    .mem_access_width(PM_mem_access_width),
-    .is_load_unsigned(PM_is_load_unsigned),
-    .hc_access(PM_hc_access),
     .MW_pc(MW_pc),
     .MW_irreg_pc(MW_irreg_pc),
     .MW_r_data(MW_r_data),
     .MW_alu_result(MW_alu_result),
     .MW_is_load(MW_is_load),
     .MW_w_enable(MW_w_enable),
-    .MW_rd_addr(MW_rd_addr)
+    .MW_rd_addr(MW_rd_addr),
+    .uart(uart_IN_data),
+    .uart_we(uart_we)
   );
 
   
