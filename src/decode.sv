@@ -8,7 +8,7 @@ import PipelineTypes::*;
 module decode(
   DecodeStageIF.ThisStage port,
   FetchStageIF.NextStage prev,
-  RegisterFileIF.DecodeStage writeBack,
+  RegisterFileIF.DecodeStage registerFile,
   input var [31:0]pc_WB
 );
   
@@ -32,7 +32,7 @@ module decode(
 
   //rs1またはrs2について、命令がレジスタを使用し、かつreadyがdisableならハザー
   //ド
-  assign port.isDataHazard = is_data_hazard_gen(rs1_ready,rs2_ready,aluCtrl.aluOp1Type,aluCtrl.aluOp2Type,is_store);
+  assign port.isDataHazard = is_data_hazard_gen(registerFile.rs1Ready,registerFile.rs2Ready,aluCtrl.aluOp1Type,aluCtrl.aluOp2Type,is_store);
 
   function bit is_data_hazard_gen;
     input bit rs1_ready;
@@ -68,24 +68,10 @@ endfunction
     .is_halt(is_halt) //haltかどうか
   );
 
-  register register(
-    //input
-    .pc_WB(pc_WB),
-    .clk(port.clk),
-    .rstd(port.rst),
-    .rs1_addr(rs1_addr),
-    .rs2_addr(rs2_addr),
-    .wb_enable(writeBack.wEnable),
-    .wb_addr(writeBack.rdAddr),
-    .wb_data(writeBack.wData),
-    .prev_w_enable(nextStage.w_enable),
-    .prev_rd_addr(nextStage.rd_addr),
-    //output
-    .rs1_data(rs1_data),
-    .rs2_data(rs2_data),
-    .rs1_ready(rs1_ready),
-    .rs2_ready(rs2_ready)
-  );
+  assign registerFile.rs1Addr = rs1_addr;
+  assign registerFile.rs2Addr = rs2_addr;
+  assign registerFile.prevRdAddr = nextStage.rd_addr;
+  assign registerFile.prevWEnable = nextStage.w_enable;
 
   always_ff@(negedge port.clk) begin
     if (port.rst == 1'b0) begin
@@ -116,8 +102,8 @@ endfunction
 
     else begin
       nextStage.pc <= prev.nextStage.pc;
-      nextStage.rs1_data <= rs1_data;
-      nextStage.rs2_data <= rs2_data;
+      nextStage.rs1_data <= registerFile.rs1Data;
+      nextStage.rs2_data <= registerFile.rs2Data;
       nextStage.imm <= imm;
       nextStage.rd_addr <= rd_addr;
       nextStage.aluCtrl <= aluCtrl;

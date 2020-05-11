@@ -45,6 +45,11 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
       .sys_rstn_i(rst)
   );
 
+  register register(
+    .port(registerFileIF),
+    .pc_WB(WD_pc)
+  );
+
 
   fetch fetch(
     .port(fetchStageIF),
@@ -55,7 +60,7 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
   decode decode(
     .port(decodeStageIF),
     .prev(fetchStageIF),
-    .writeBack(registerFileIF),
+    .registerFile(registerFileIF),
     .pc_WB(WD_pc)
   );
 

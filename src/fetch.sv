@@ -110,14 +110,14 @@ module fetch(
   //ここで分岐命令かチェックする。
   //分岐命令はJAL,JALR,Beq,Bne,Blt,Bge,Bltu,Bgeuで、これらはすべて7bit目が1
   function automatic [0:0] is_branch(input Instruction inst);
-  begin
-    //0始まり
-    if (inst[6] == 1'b0) begin
-      is_branch = `DISABLE;
+    begin
+      //0始まり
+      if (inst[6] == 1'b0) begin
+        is_branch = `DISABLE;
+      end
+      else begin
+        is_branch = `ENABLE;
+      end
     end
-    else begin
-      is_branch = `ENABLE;
-    end
-  end
   endfunction
 endmodule
