@@ -14,9 +14,6 @@ interface DecodeStageIF(
 
   ExecuteStagePipeReg nextStage;
 
-  RDCtrl rdCtrl;
-  assign rdCtrl = nextStage.rdCtrl;
-
   modport ThisStage(
     input clk,
     input rst,
@@ -33,7 +30,6 @@ interface DecodeStageIF(
   );
   
   modport Controller(
-    input rdCtrl,
     input aluOp1Type,
     input aluOp2Type,
     input rs1Addr,

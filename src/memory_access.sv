@@ -19,6 +19,8 @@ module memory_access(
   logic [31:0]r_data;
   logic hc_access;
 
+  assign port.rdCtrl = prev.nextStage.rdCtrl;
+
   WriteBackStagePipeReg nextStage;
   assign port.nextStage = nextStage;
 

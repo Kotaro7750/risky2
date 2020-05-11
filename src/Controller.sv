@@ -7,10 +7,11 @@ import PipelineTypes::*;
 module Controller(
   ControllerIF.Controller port,
   DecodeStageIF.Controller decode,
-  ExecuteStageIF.Controller execute
+  ExecuteStageIF.Controller execute,
+  MemoryAccessStageIF.Controller memoryAccess
 );
 
-  assign port.isDataHazard = isDataHazard(decode.rs1Addr,decode.rs2Addr,decode.aluOp1Type,decode.aluOp2Type,decode.rdCtrl,execute.rdCtrl,decode.isStore);
+  assign port.isDataHazard = isDataHazard(decode.rs1Addr,decode.rs2Addr,decode.aluOp1Type,decode.aluOp2Type,execute.rdCtrl,memoryAccess.rdCtrl,decode.isStore);
 
   function bit isDataHazard;
     input RegAddr rs1Addr;

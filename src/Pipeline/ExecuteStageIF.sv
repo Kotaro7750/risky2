@@ -10,12 +10,12 @@ interface ExecuteStageIF(
   MemoryAccessStagePipeReg nextStage;
 
   RDCtrl rdCtrl;
-  assign rdCtrl = nextStage.rdCtrl;
 
   modport ThisStage(
     input clk,
     input rst,
     output nextStage,
+    output rdCtrl,
     output irregPc
   );
 

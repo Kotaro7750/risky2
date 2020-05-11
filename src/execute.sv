@@ -19,6 +19,8 @@ module execute(
   logic isBranch;
   logic brTaken;
 
+  assign port.rdCtrl = prev.nextStage.rdCtrl;
+
   MemoryAccessStagePipeReg nextStage;
   assign port.nextStage = nextStage;
 
