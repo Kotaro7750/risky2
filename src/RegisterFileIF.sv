@@ -42,15 +42,20 @@ interface RegisterFileIF(
     output prevRdAddr,
     output prevWEnable,
     input rs1Data,
-    input rs2Data,
-    input rs1Ready,
-    input rs2Ready
+    input rs2Data
+    //input rs1Ready,
+    //input rs2Ready
   );
   
   modport WriteBackStage(
     output wData,
     output rdAddr,
     output wEnable
+  );
+
+  modport Controller(
+    input rs1Ready,
+    input rs2Ready
   );
 
 endinterface : RegisterFileIF

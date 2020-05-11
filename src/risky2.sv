@@ -22,6 +22,8 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
 
   RegisterFileIF registerFileIF(clk,rst);
 
+  ControllerIF controllerIF(clk,rst);
+
   //WD
   logic [31:0]WD_pc;
   logic [31:0]WD_irreg_pc;
@@ -50,10 +52,16 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
     .pc_WB(WD_pc)
   );
 
+  Controller Controller(
+    .port(controllerIF),
+    .decode(decodeStageIF),
+    .registerFile(registerFileIF)
+  );
+
 
   fetch fetch(
     .port(fetchStageIF),
-    .dataHazard(decodeStageIF),
+    .dataHazard(controllerIF),
     .irregularPC(executeStageIF)
   );
   
@@ -61,6 +69,7 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
     .port(decodeStageIF),
     .prev(fetchStageIF),
     .registerFile(registerFileIF),
+    .dataHazard(controllerIF),
     .pc_WB(WD_pc)
   );
 

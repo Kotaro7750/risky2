@@ -13,7 +13,7 @@ import PipelineTypes::*;
 //このとき前の命令を送り、pcは更新しない。
 module fetch(
   FetchStageIF.ThisStage port,
-  DecodeStageIF.DataHazard dataHazard,
+  ControllerIF.DataHazard dataHazard,
   ExecuteStageIF.IrregularPC irregularPC
 );
 

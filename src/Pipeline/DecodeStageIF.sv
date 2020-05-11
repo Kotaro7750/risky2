@@ -1,17 +1,23 @@
 import PipelineTypes::*;
+import BasicTypes::*;
 
 interface DecodeStageIF(
   input var logic clk,
   input var logic rst
 );
 
-  logic isDataHazard;
+  ALUOpType aluOp1Type;
+  ALUOpType aluOp2Type;
+  logic isStore;
+
   ExecuteStagePipeReg nextStage;
 
   modport ThisStage(
     input clk,
     input rst,
-    output isDataHazard,
+    output aluOp1Type,
+    output aluOp2Type,
+    output isStore,
     output nextStage
   );
 
@@ -19,8 +25,10 @@ interface DecodeStageIF(
     input nextStage
   );
   
-  modport DataHazard(
-    input isDataHazard
+  modport Controller(
+    input aluOp1Type,
+    input aluOp2Type,
+    input isStore
   );
 
 endinterface : DecodeStageIF

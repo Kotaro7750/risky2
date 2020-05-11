@@ -9,6 +9,7 @@ module decode(
   DecodeStageIF.ThisStage port,
   FetchStageIF.NextStage prev,
   RegisterFileIF.DecodeStage registerFile,
+  ControllerIF.DataHazard dataHazard,
   input var [31:0]pc_WB
 );
   
@@ -30,25 +31,9 @@ module decode(
   ExecuteStagePipeReg nextStage;
   assign port.nextStage = nextStage;
 
-  //rs1またはrs2について、命令がレジスタを使用し、かつreadyがdisableならハザー
-  //ド
-  assign port.isDataHazard = is_data_hazard_gen(registerFile.rs1Ready,registerFile.rs2Ready,aluCtrl.aluOp1Type,aluCtrl.aluOp2Type,is_store);
-
-  function bit is_data_hazard_gen;
-    input bit rs1_ready;
-    input bit rs2_ready;
-    input [1:0]alu_op1_type;
-    input [1:0]alu_op2_type;
-    input bit is_store;
-  begin
-    if (is_store == `ENABLE) begin
-      is_data_hazard_gen = ((rs1_ready == `DISABLE && alu_op1_type == OP_TYPE_REG) || (rs2_ready == `DISABLE)) ? `ENABLE : `DISABLE;
-    end
-    else begin
-      is_data_hazard_gen = ((rs1_ready == `DISABLE && alu_op1_type == OP_TYPE_REG) || (rs2_ready == `DISABLE && alu_op2_type == OP_TYPE_REG)) ? `ENABLE : `DISABLE; 
-    end
-  end
-endfunction
+  assign port.aluOp1Type = aluCtrl.aluOp1Type;
+  assign port.aluOp2Type = aluCtrl.aluOp2Type;
+  assign port.isStore = is_store;
   
 
   //クロック同期ではなく、入力によってデコード結果を垂れ流すだけ。意味付けは
@@ -74,20 +59,7 @@ endfunction
   assign registerFile.prevWEnable = nextStage.w_enable;
 
   always_ff@(negedge port.clk) begin
-    if (port.rst == 1'b0) begin
-      nextStage.pc <= `NOP;
-      nextStage.rs1_data <= `NOP;
-      nextStage.rs2_data <= `NOP;
-      nextStage.imm <= `NOP;
-      nextStage.rd_addr <= `NOP;
-      nextStage.aluCtrl <= {ALU_NOP,OP_TYPE_NONE,OP_TYPE_NONE};
-      nextStage.w_enable <= `DISABLE;
-      nextStage.is_store <= `DISABLE;
-      nextStage.is_load <= `DISABLE;
-      nextStage.is_halt <= `DISABLE;
-    end
-
-    if (port.isDataHazard == `ENABLE) begin
+    if (port.rst == 1'b0 || dataHazard.isDataHazard == `ENABLE) begin
       nextStage.pc <= `NOP;
       nextStage.rs1_data <= `NOP;
       nextStage.rs2_data <= `NOP;
