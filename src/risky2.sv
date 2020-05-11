@@ -55,6 +55,7 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
   Controller Controller(
     .port(controllerIF),
     .decode(decodeStageIF),
+    .execute(executeStageIF),
     .registerFile(registerFileIF)
   );
 

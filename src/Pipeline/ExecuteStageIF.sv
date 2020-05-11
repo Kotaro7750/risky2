@@ -9,6 +9,9 @@ interface ExecuteStageIF(
   PC irregPc;
   MemoryAccessStagePipeReg nextStage;
 
+  RDCtrl rdCtrl;
+  assign rdCtrl = nextStage.rdCtrl;
+
   modport ThisStage(
     input clk,
     input rst,
@@ -22,6 +25,10 @@ interface ExecuteStageIF(
 
   modport IrregularPC(
     input irregPc
+  );
+
+  modport Controller(
+    input rdCtrl
   );
 
 endinterface : ExecuteStageIF

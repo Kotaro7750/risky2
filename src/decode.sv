@@ -26,6 +26,8 @@ module decode(
   ExecuteStagePipeReg nextStage;
   assign port.nextStage = nextStage;
 
+  assign port.rs1Addr = rs1_addr;
+  assign port.rs2Addr = rs2_addr;
   assign port.aluOp1Type = aluCtrl.aluOp1Type;
   assign port.aluOp2Type = aluCtrl.aluOp2Type;
   assign port.isStore = is_store;
