@@ -9,26 +9,26 @@ typedef struct packed {
 
 typedef struct packed {
   PC pc;
-  BasicData rs1_data;
-  BasicData rs2_data;
+  BasicData rs1Data;
+  BasicData rs2Data;
   BasicData imm;
   RDCtrl rdCtrl;
   ALUCtrl aluCtrl;
-  logic is_store;
-  logic is_load;
-  logic is_halt;
+  logic isStore;
+  logic isLoad;
+  logic isHalt;
 } ExecuteStagePipeReg ;
 
 typedef struct packed {
   PC pc;
-  PC irreg_pc;
-  BasicData alu_result;
-  BasicData w_data;
-  logic [1:0] mem_access_width;
+  PC irregPc;
+  BasicData aluResult;
+  BasicData wData;
+  logic [1:0] memAccessWidth;
   RDCtrl rdCtrl;
-  logic is_store;
-  logic is_load;
-  logic is_load_unsigned;
+  logic isStore;
+  logic isLoad;
+  logic isLoadUnsigned;
 } MemoryAccessStagePipeReg ;
 
 typedef struct packed {

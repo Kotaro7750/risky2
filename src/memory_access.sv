@@ -22,8 +22,8 @@ module memory_access(
   WriteBackStagePipeReg nextStage;
   assign port.nextStage = nextStage;
 
-  assign hc_access = (prev.nextStage.alu_result == `HARDWARE_COUNTER_ADDR && prev.nextStage.is_load) ? `ENABLE : `DISABLE;
-  assign r_data = r_data_gen(row_r_data,prev.nextStage.mem_access_width,prev.nextStage.is_load_unsigned,offset,hc_access,hc_OUT_data);
+  assign hc_access = (prev.nextStage.aluResult == `HARDWARE_COUNTER_ADDR && prev.nextStage.isLoad) ? `ENABLE : `DISABLE;
+  assign r_data = r_data_gen(row_r_data,prev.nextStage.memAccessWidth,prev.nextStage.isLoadUnsigned,offset,hc_access,hc_OUT_data);
 
   bram bram(
     .pc(prev.nextStage.pc),
@@ -32,27 +32,27 @@ module memory_access(
     .r_addr(line),
     .w_addr(line),
     .w_data(shifted_w_data),
-    .row_addr(prev.nextStage.alu_result),
+    .row_addr(prev.nextStage.aluResult),
     .r_data(row_r_data)
   );
 
   always_ff@(negedge port.clk) begin
     nextStage.pc <= prev.nextStage.pc;
-    nextStage.irreg_pc <= prev.nextStage.irreg_pc;
+    nextStage.irreg_pc <= prev.nextStage.irregPc;
     nextStage.r_data <= r_data;
-    nextStage.alu_result <= prev.nextStage.alu_result;
-    nextStage.is_load <= prev.nextStage.is_load;
+    nextStage.alu_result <= prev.nextStage.aluResult;
+    nextStage.is_load <= prev.nextStage.isLoad;
     nextStage.rdCtrl <= prev.nextStage.rdCtrl;
   end
 
   memory_ctl memory_ctl(
     .pc(prev.nextStage.pc),
     .clk(port.clk),
-    .is_store(prev.nextStage.is_store),
-    .is_load_unsigned(prev.nextStage.is_load_unsigned),
-    .addr(prev.nextStage.alu_result),
-    .mem_access_width(prev.nextStage.mem_access_width),
-    .w_data(prev.nextStage.w_data),
+    .is_store(prev.nextStage.isStore),
+    .is_load_unsigned(prev.nextStage.isLoadUnsigned),
+    .addr(prev.nextStage.aluResult),
+    .mem_access_width(prev.nextStage.memAccessWidth),
+    .w_data(prev.nextStage.wData),
     .w_enable(mem_w_enable),
     .line(line),
     .offset(offset),
@@ -80,7 +80,7 @@ module memory_access(
     input [31:0] hc_OUT_data;
 
     begin
-      if (hc_access == `ENABLE && prev.nextStage.is_load) begin
+      if (hc_access == `ENABLE && prev.nextStage.isLoad) begin
         r_data_gen = hc_OUT_data;
       end
       else begin

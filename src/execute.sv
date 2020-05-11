@@ -12,11 +12,12 @@ module execute(
   logic [31:0]alu_op2;
   logic [31:0]npc_op1;
   logic [31:0]npc_op2;
-  logic [31:0]alu_result;
-  logic [1:0]mem_access_width;
-  logic [31:0]irreg_pc;
-  logic is_branch;
-  logic br_taken;
+  logic [31:0]aluResult;
+  logic [1:0]memAccessWidth;
+  logic [31:0]irregPc;
+  logic isLoadUnsigned;
+  logic isBranch;
+  logic brTaken;
 
   MemoryAccessStagePipeReg nextStage;
   assign port.nextStage = nextStage;
@@ -24,32 +25,32 @@ module execute(
   always_ff@(negedge port.clk) begin
     if (port.rst == 1'b0) begin
       nextStage.pc <= 32'd0;
-      nextStage.alu_result <= 32'd0;
-      nextStage.w_data <= 32'd0;
-      nextStage.mem_access_width <= 2'd0;
+      nextStage.aluResult <= 32'd0;
+      nextStage.wData <= 32'd0;
+      nextStage.memAccessWidth <= 2'd0;
       nextStage.rdCtrl <= {`DISABLE,5'd0};
-      nextStage.is_store <= `DISABLE;
-      nextStage.is_load <= `DISABLE;
-      nextStage.is_load_unsigned <= `DISABLE;
+      nextStage.isStore <= `DISABLE;
+      nextStage.isLoad <= `DISABLE;
+      nextStage.isLoadUnsigned <= `DISABLE;
       port.irregPc <= 32'd0;
     end
     else begin
       nextStage.pc <= prev.nextStage.pc;
-      nextStage.alu_result <= alu_result;
-      nextStage.w_data <= prev.nextStage.rs2_data;
-      nextStage.mem_access_width <= mem_access_width;
+      nextStage.aluResult <= aluResult;
+      nextStage.wData <= prev.nextStage.rs2Data;
+      nextStage.memAccessWidth <= memAccessWidth;
       nextStage.rdCtrl <= prev.nextStage.rdCtrl;
-      nextStage.is_store <= prev.nextStage.is_store;
-      nextStage.is_load <= prev.nextStage.is_load;
-      nextStage.is_load_unsigned <= is_load_unsigned;
-      port.irregPc <= irreg_pc;
+      nextStage.isStore <= prev.nextStage.isStore;
+      nextStage.isLoad <= prev.nextStage.isLoad;
+      nextStage.isLoadUnsigned <= isLoadUnsigned;
+      port.irregPc <= irregPc;
     end
   end
 
   exec_switcher exec_switcher(
     .pc(prev.nextStage.pc),
-    .rs1(prev.nextStage.rs1_data),
-    .rs2(prev.nextStage.rs2_data),
+    .rs1(prev.nextStage.rs1Data),
+    .rs2(prev.nextStage.rs2Data),
     .imm(prev.nextStage.imm),
     .aluCtrl(prev.nextStage.aluCtrl),
     .alu_op1(alu_op1),
@@ -62,19 +63,19 @@ module execute(
     .alucode(prev.nextStage.aluCtrl.aluCode),
     .op1(alu_op1),
     .op2(alu_op2),
-    .alu_result(alu_result),
-    .is_branch(is_branch),
-    .br_taken(br_taken),
-    .mem_access_width(mem_access_width),
-    .is_load_unsigned(is_load_unsigned)
+    .aluResult(aluResult),
+    .isBranch(isBranch),
+    .brTaken(brTaken),
+    .memAccessWidth(memAccessWidth),
+    .isLoadUnsigned(isLoadUnsigned)
   );
 
   irreg_pc_gen irreg_pc_gen(
     .op1(npc_op1),
     .op2(npc_op2),
-    .br_taken(br_taken),
-    .is_branch(is_branch),
-    .irreg_pc(irreg_pc)
+    .brTaken(brTaken),
+    .isBranch(isBranch),
+    .irregPc(irregPc)
   );
 
 endmodule

@@ -5,14 +5,10 @@
 module irreg_pc_gen(
   input var [31:0]op1,
   input var [31:0]op2,
-  input var bit is_branch,
-  input var bit br_taken,
-  output var [31:0]irreg_pc
+  input var bit isBranch,
+  input var bit brTaken,
+  output var [31:0]irregPc
 );
 
-  //TODO ここop1+4じゃなくて0にしないとだめかな。でも0にジャンプする命令あった
-  //らどうしよう
-  //assign irreg_pc = (br_taken == `ENABLE) ? op1 + op2 : op1 + 4;
-  //assign irreg_pc = (br_taken == `ENABLE) ? op1 + op2 : 31'd0;
-  assign irreg_pc = (is_branch == `ENABLE) ? ((br_taken == `ENABLE) ? op1 + op2 : op1 + 4) : 31'd0;
+  assign irregPc = (isBranch == `ENABLE) ? ((brTaken == `ENABLE) ? op1 + op2 : op1 + 4) : 31'd0;
 endmodule

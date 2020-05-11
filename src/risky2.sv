@@ -47,16 +47,15 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
       .sys_rstn_i(rst)
   );
 
-  register register(
+  RegisterFile RegisterFile(
     .port(registerFileIF),
-    .pc_WB(WD_pc)
+    .pc(WD_pc)
   );
 
   Controller Controller(
     .port(controllerIF),
     .decode(decodeStageIF),
-    .execute(executeStageIF),
-    .registerFile(registerFileIF)
+    .execute(executeStageIF)
   );
 
 
