@@ -16,9 +16,7 @@ module decode(
   RegAddr rs2_addr; //rs2アドレス
   RegAddr rd_addr; //rdアドレス
   BasicData imm; //即値
-  logic [5:0]alu_code; //aluコード
-  logic [1:0]alu_op1_type; //オペランド1タイプ
-  logic [1:0]alu_op2_type; //オペランド2タイプ
+  ALUCtrl aluCtrl;
   logic reg_w_enable; //書き込みの有無
   logic is_load; //ロード命令かどうか
   logic is_store; //ストア命令かどうか
@@ -34,7 +32,7 @@ module decode(
 
   //rs1またはrs2について、命令がレジスタを使用し、かつreadyがdisableならハザー
   //ド
-  assign port.isDataHazard = is_data_hazard_gen(rs1_ready,rs2_ready,alu_op1_type,alu_op2_type,is_store);
+  assign port.isDataHazard = is_data_hazard_gen(rs1_ready,rs2_ready,aluCtrl.aluOp1Type,aluCtrl.aluOp2Type,is_store);
 
   function bit is_data_hazard_gen;
     input bit rs1_ready;
@@ -44,10 +42,10 @@ module decode(
     input bit is_store;
   begin
     if (is_store == `ENABLE) begin
-      is_data_hazard_gen = ((rs1_ready == `DISABLE && alu_op1_type == `OP_TYPE_REG) || (rs2_ready == `DISABLE)) ? `ENABLE : `DISABLE;
+      is_data_hazard_gen = ((rs1_ready == `DISABLE && alu_op1_type == OP_TYPE_REG) || (rs2_ready == `DISABLE)) ? `ENABLE : `DISABLE;
     end
     else begin
-      is_data_hazard_gen = ((rs1_ready == `DISABLE && alu_op1_type == `OP_TYPE_REG) || (rs2_ready == `DISABLE && alu_op2_type == `OP_TYPE_REG)) ? `ENABLE : `DISABLE; 
+      is_data_hazard_gen = ((rs1_ready == `DISABLE && alu_op1_type == OP_TYPE_REG) || (rs2_ready == `DISABLE && alu_op2_type == OP_TYPE_REG)) ? `ENABLE : `DISABLE; 
     end
   end
 endfunction
@@ -63,9 +61,7 @@ endfunction
     .src2_reg(rs2_addr), //rs2のアドレス
     .dst_reg(rd_addr), //rdのアドレス
     .imm(imm), //即値
-    .alu_code(alu_code), //aluコード
-    .alu_op1_type(alu_op1_type), //オペランド1のタイプ
-    .alu_op2_type(alu_op2_type), //オペランド2のタイプ
+    .aluCtrl(aluCtrl),
     .reg_w_enable(reg_w_enable), //書き込みの有無
     .is_load(is_load), //ロード命令かどうか
     .is_store(is_store), //ストア命令かどうか
@@ -79,9 +75,6 @@ endfunction
     .rstd(port.rst),
     .rs1_addr(rs1_addr),
     .rs2_addr(rs2_addr),
-    //.wb_enable(w_enable_WB),
-    //.wb_addr(w_addr_WB),
-    //.wb_data(w_data_WB),
     .wb_enable(writeBack.wEnable),
     .wb_addr(writeBack.rdAddr),
     .wb_data(writeBack.wData),
@@ -101,9 +94,7 @@ endfunction
       nextStage.rs2_data <= `NOP;
       nextStage.imm <= `NOP;
       nextStage.rd_addr <= `NOP;
-      nextStage.alu_code <= `ALU_NOP;
-      nextStage.alu_op1_type <= `OP_TYPE_NONE;
-      nextStage.alu_op2_type <= `OP_TYPE_NONE;
+      nextStage.aluCtrl <= {ALU_NOP,OP_TYPE_NONE,OP_TYPE_NONE};
       nextStage.w_enable <= `DISABLE;
       nextStage.is_store <= `DISABLE;
       nextStage.is_load <= `DISABLE;
@@ -116,9 +107,7 @@ endfunction
       nextStage.rs2_data <= `NOP;
       nextStage.imm <= `NOP;
       nextStage.rd_addr <= `NOP;
-      nextStage.alu_code <= `ALU_NOP;
-      nextStage.alu_op1_type <= `OP_TYPE_NONE;
-      nextStage.alu_op2_type <= `OP_TYPE_NONE;
+      nextStage.aluCtrl <= {ALU_NOP,OP_TYPE_NONE,OP_TYPE_NONE};
       nextStage.w_enable <= `DISABLE;
       nextStage.is_store <= `DISABLE;
       nextStage.is_load <= `DISABLE;
@@ -131,9 +120,7 @@ endfunction
       nextStage.rs2_data <= rs2_data;
       nextStage.imm <= imm;
       nextStage.rd_addr <= rd_addr;
-      nextStage.alu_code <= alu_code;
-      nextStage.alu_op1_type <= alu_op1_type;
-      nextStage.alu_op2_type <= alu_op2_type;
+      nextStage.aluCtrl <= aluCtrl;
       nextStage.w_enable <= reg_w_enable;
       nextStage.is_store <= is_store;
       nextStage.is_load <= is_load;

@@ -1,4 +1,3 @@
-
 package PipelineTypes;
 
 import BasicTypes::*;
@@ -14,9 +13,7 @@ typedef struct packed {
   BasicData rs2_data;
   BasicData imm;
   RegAddr rd_addr;
-  logic [5:0]alu_code;
-  logic [1:0]alu_op1_type;
-  logic [1:0]alu_op2_type;
+  ALUCtrl aluCtrl;
   logic w_enable;
   logic is_store;
   logic is_load;

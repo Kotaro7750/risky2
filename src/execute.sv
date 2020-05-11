@@ -6,15 +6,6 @@ import PipelineTypes::*;
 module execute(
   ExecuteStageIF.ThisStage port,
   DecodeStageIF.NextStage prev
-  //output var [31:0]EM_pc, //デバッグ用
-  //output var [31:0]EM_alu_result, //演算結果
-  //output var [31:0]EM_w_data, //load書き込みデータ
-  //output var [1:0]EM_mem_access_width, //メモリアクセス幅
-  //output var [4:0]EM_rd_addr,
-  //output var logic EM_w_enable,
-  //output var logic EM_is_store,
-  //output var logic EM_is_load,
-  //output var logic EM_is_load_unsigned
 );
 
   logic [31:0]alu_op1;
@@ -62,9 +53,7 @@ module execute(
     .rs1(prev.nextStage.rs1_data),
     .rs2(prev.nextStage.rs2_data),
     .imm(prev.nextStage.imm),
-    .alu_code(prev.nextStage.alu_code),
-    .alu_op1_type(prev.nextStage.alu_op1_type),
-    .alu_op2_type(prev.nextStage.alu_op2_type),
+    .aluCtrl(prev.nextStage.aluCtrl),
     .alu_op1(alu_op1),
     .alu_op2(alu_op2),
     .npc_op1(npc_op1),
@@ -72,7 +61,7 @@ module execute(
   );
 
   alu alu(
-    .alucode(prev.nextStage.alu_code),
+    .alucode(prev.nextStage.aluCtrl.aluCode),
     .op1(alu_op1),
     .op2(alu_op2),
     .alu_result(alu_result),

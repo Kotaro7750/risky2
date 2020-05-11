@@ -34,42 +34,6 @@
 `define REG_NONE 1'd0
 `define REG_RD   1'd1
 
-// ALUコード
-`define ALU_LUI   6'd0
-`define ALU_JAL   6'd1
-`define ALU_JALR  6'd2
-`define ALU_BEQ   6'd3
-`define ALU_BNE   6'd4
-`define ALU_BLT   6'd5
-`define ALU_BGE   6'd6
-`define ALU_BLTU  6'd7
-`define ALU_BGEU  6'd8
-`define ALU_LB    6'd9
-`define ALU_LH    6'd10
-`define ALU_LW    6'd11
-`define ALU_LBU   6'd12
-`define ALU_LHU   6'd13
-`define ALU_SB    6'd14
-`define ALU_SH    6'd15
-`define ALU_SW    6'd16
-`define ALU_ADD   6'd17
-`define ALU_SUB   6'd18
-`define ALU_SLT   6'd19
-`define ALU_SLTU  6'd20
-`define ALU_XOR   6'd21
-`define ALU_OR    6'd22
-`define ALU_AND   6'd23
-`define ALU_SLL   6'd24
-`define ALU_SRL   6'd25
-`define ALU_SRA   6'd26
-`define ALU_NOP   6'd63
-
-// ALU入力タイプ
-`define OP_TYPE_NONE 2'd0
-`define OP_TYPE_REG  2'd1
-`define OP_TYPE_IMM  2'd2
-`define OP_TYPE_PC   2'd3
-
 //メモリアクセス幅
 `define MEM_NONE 2'd0
 `define MEM_BYTE 2'd1
