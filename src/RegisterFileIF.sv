@@ -14,8 +14,7 @@ interface RegisterFileIF(
   logic rs2Ready;
 
   BasicData wData;
-  RegAddr rdAddr;
-  logic wEnable;
+  RDCtrl rdCtrl;
 
   RegAddr prevRdAddr;
   logic prevWEnable;
@@ -25,9 +24,8 @@ interface RegisterFileIF(
     input rst,
     input rs1Addr,
     input rs2Addr,
-    input rdAddr,
+    input rdCtrl,
     input wData,
-    input wEnable,
     input prevWEnable,
     input prevRdAddr,
     output rs1Data,
@@ -43,14 +41,11 @@ interface RegisterFileIF(
     output prevWEnable,
     input rs1Data,
     input rs2Data
-    //input rs1Ready,
-    //input rs2Ready
   );
   
   modport WriteBackStage(
     output wData,
-    output rdAddr,
-    output wEnable
+    output rdCtrl
   );
 
   modport Controller(

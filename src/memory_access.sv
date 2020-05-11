@@ -42,8 +42,7 @@ module memory_access(
     nextStage.r_data <= r_data;
     nextStage.alu_result <= prev.nextStage.alu_result;
     nextStage.is_load <= prev.nextStage.is_load;
-    nextStage.w_enable <= prev.nextStage.w_enable;
-    nextStage.rd_addr <= prev.nextStage.rd_addr;
+    nextStage.rdCtrl <= prev.nextStage.rdCtrl;
   end
 
   memory_ctl memory_ctl(

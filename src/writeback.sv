@@ -11,17 +11,16 @@ module writeback(
   logic [31:0]writeback_data;
 
   always_ff@(posedge port.clk) begin
-    if (prev.nextStage.w_enable) begin
-      if (prev.nextStage.is_load) $display("0x%4h: ", prev.nextStage.pc,"x%02d",prev.nextStage.rd_addr," = ","0x%08h",writeback_data," 0x%08h",writeback_data," <- ","mem[0x%08h]",prev.nextStage.alu_result);
-      else $display("0x%4h: ", prev.nextStage.pc,"x%02d",prev.nextStage.rd_addr," = ","0x%08h",writeback_data);
+    if (prev.nextStage.rdCtrl.wEnable) begin
+      if (prev.nextStage.is_load) $display("0x%4h: ", prev.nextStage.pc,"x%02d",prev.nextStage.rdCtrl.rdAddr," = ","0x%08h",writeback_data," 0x%08h",writeback_data," <- ","mem[0x%08h]",prev.nextStage.alu_result);
+      else $display("0x%4h: ", prev.nextStage.pc,"x%02d",prev.nextStage.rdCtrl.rdAddr," = ","0x%08h",writeback_data);
     end 
   end
 
   assign  WD_pc = prev.nextStage.pc;
   assign  WD_irreg_pc = prev.nextStage.irreg_pc;
   assign  registerFile.wData = writeback_data;
-  assign  registerFile.wEnable = prev.nextStage.w_enable;
-  assign  registerFile.rdAddr = prev.nextStage.rd_addr;
+  assign registerFile.rdCtrl = prev.nextStage.rdCtrl;
 
   writeback_gen writeback_gen(
     .is_load(prev.nextStage.is_load),

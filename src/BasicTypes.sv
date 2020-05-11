@@ -48,4 +48,9 @@ package BasicTypes;
     ALUOpType aluOp1Type;
     ALUOpType aluOp2Type;
   } ALUCtrl;
+
+  typedef struct packed {
+    logic wEnable;
+    RegAddr rdAddr;
+  } RDCtrl ;
 endpackage

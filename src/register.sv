@@ -16,8 +16,8 @@ module register(
     .rstd(port.rst),
     .rs1_addr(port.rs1Addr), //rs1のアドレス
     .rs2_addr(port.rs2Addr), //rs2のアドレス
-    .w_enable(port.wEnable), //命令の結果を書き込むかどうか
-    .w_addr(port.rdAddr), //書き込むアドレス
+    .w_enable(port.rdCtrl.wEnable), //命令の結果を書き込むかどうか
+    .w_addr(port.rdCtrl.rdAddr), //書き込むアドレス
     .w_data(port.wData), //命令の結果
     //output
     .rs1_data(port.rs1Data), //読み出したrs1のデータ
@@ -33,9 +33,9 @@ module register(
     .rs1_addr(port.rs1Addr), //rs1のアドレス
     .rs2_addr(port.rs2Addr), //rs2のアドレス
     .w_addr_D(port.prevRdAddr), //前回のクロックでデコードした命令のrdアドレス
-    .w_addr_WB(port.rdAddr), //WBで書き込むアドレス
+    .w_addr_WB(port.rdCtrl.rdAddr), //WBで書き込むアドレス
     .w_enable_D(port.prevWEnable), //前回のクロックでデコードした命令の書き込みの有無
-    .w_enable_WB(port.wEnable), //WBでの書き込みの有無
+    .w_enable_WB(port.rdCtrl.wEnable), //WBでの書き込みの有無
     //output
     .rs1_ready(port.rs1Ready), //rs1が使用可能か
     .rs2_ready(port.rs2Ready) //rs2が使用可能か

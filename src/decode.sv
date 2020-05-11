@@ -22,11 +22,6 @@ module decode(
   logic is_load; //ロード命令かどうか
   logic is_store; //ストア命令かどうか
   logic is_halt; //haltかどうか
-  logic rs1_ready; //rs1が使用可能か
-  logic rs2_ready; //rs2が使用可能か
-
-  BasicData rs1_data; //rs1のデータ
-  BasicData rs2_data; //rs2のデータ
 
   ExecuteStagePipeReg nextStage;
   assign port.nextStage = nextStage;
@@ -55,8 +50,8 @@ module decode(
 
   assign registerFile.rs1Addr = rs1_addr;
   assign registerFile.rs2Addr = rs2_addr;
-  assign registerFile.prevRdAddr = nextStage.rd_addr;
-  assign registerFile.prevWEnable = nextStage.w_enable;
+  assign registerFile.prevRdAddr = nextStage.rdCtrl.rdAddr;
+  assign registerFile.prevWEnable = nextStage.rdCtrl.wEnable;
 
   always_ff@(negedge port.clk) begin
     if (port.rst == 1'b0 || dataHazard.isDataHazard == `ENABLE) begin
@@ -64,9 +59,8 @@ module decode(
       nextStage.rs1_data <= `NOP;
       nextStage.rs2_data <= `NOP;
       nextStage.imm <= `NOP;
-      nextStage.rd_addr <= `NOP;
+      nextStage.rdCtrl <= {`DISABLE,`NOP};
       nextStage.aluCtrl <= {ALU_NOP,OP_TYPE_NONE,OP_TYPE_NONE};
-      nextStage.w_enable <= `DISABLE;
       nextStage.is_store <= `DISABLE;
       nextStage.is_load <= `DISABLE;
       nextStage.is_halt <= `DISABLE;
@@ -77,9 +71,8 @@ module decode(
       nextStage.rs1_data <= registerFile.rs1Data;
       nextStage.rs2_data <= registerFile.rs2Data;
       nextStage.imm <= imm;
-      nextStage.rd_addr <= rd_addr;
+      nextStage.rdCtrl <= {reg_w_enable,rd_addr};
       nextStage.aluCtrl <= aluCtrl;
-      nextStage.w_enable <= reg_w_enable;
       nextStage.is_store <= is_store;
       nextStage.is_load <= is_load;
       nextStage.is_halt <= is_halt;

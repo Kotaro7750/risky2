@@ -27,8 +27,7 @@ module execute(
       nextStage.alu_result <= 32'd0;
       nextStage.w_data <= 32'd0;
       nextStage.mem_access_width <= 2'd0;
-      nextStage.rd_addr <= 5'd0;
-      nextStage.w_enable <= `DISABLE;
+      nextStage.rdCtrl <= {`DISABLE,5'd0};
       nextStage.is_store <= `DISABLE;
       nextStage.is_load <= `DISABLE;
       nextStage.is_load_unsigned <= `DISABLE;
@@ -39,8 +38,7 @@ module execute(
       nextStage.alu_result <= alu_result;
       nextStage.w_data <= prev.nextStage.rs2_data;
       nextStage.mem_access_width <= mem_access_width;
-      nextStage.rd_addr <= prev.nextStage.rd_addr;
-      nextStage.w_enable <= prev.nextStage.w_enable;
+      nextStage.rdCtrl <= prev.nextStage.rdCtrl;
       nextStage.is_store <= prev.nextStage.is_store;
       nextStage.is_load <= prev.nextStage.is_load;
       nextStage.is_load_unsigned <= is_load_unsigned;
