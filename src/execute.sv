@@ -5,7 +5,9 @@ import PipelineTypes::*;
 
 module execute(
   ExecuteStageIF.ThisStage port,
-  DecodeStageIF.NextStage prev
+  DecodeStageIF.NextStage prev,
+  BypassNetworkIF.ExecuteStage bypassNetwork
+  //ControllerIF.ExecuteStage controller
 );
 
   logic [31:0]alu_op1;
@@ -20,9 +22,37 @@ module execute(
   logic brTaken;
 
   assign port.rdCtrl = prev.nextStage.rdCtrl;
+  assign bypassNetwork.ExwData = nextStage.aluResult;
 
   MemoryAccessStagePipeReg nextStage;
   assign port.nextStage = nextStage;
+
+  BasicData bypassedRs2;
+  always_comb begin
+    //case (op1BypassCtrl)
+    //  BYPASS_NONE: begin
+    //    bypassedRs1 = rs1;
+    //  end
+    //  BYPASS_EXEC: begin
+    //    bypassedRs1 = bypassExData;
+    //  end
+    //  BYPASS_MEM: begin
+    //    bypassedRs1 = bypassMemData;
+    //  end
+    //endcase
+
+    case (prev.nextStage.op2BypassCtrl)
+      BYPASS_NONE: begin
+        bypassedRs2 = prev.nextStage.rs2Data;
+      end
+      BYPASS_EXEC: begin
+        bypassedRs2 = bypassNetwork.BypassExData;
+      end
+      BYPASS_MEM: begin
+        bypassedRs2 = bypassNetwork.BypassMemData;
+      end
+    endcase
+  end
 
   always_ff@(negedge port.clk) begin
     if (port.rst == 1'b0) begin
@@ -30,7 +60,7 @@ module execute(
       nextStage.aluResult <= 32'd0;
       nextStage.wData <= 32'd0;
       nextStage.memAccessWidth <= 2'd0;
-      nextStage.rdCtrl <= {`DISABLE,5'd0};
+      nextStage.rdCtrl <= {`DISABLE,5'd0,`DISABLE};
       nextStage.isStore <= `DISABLE;
       nextStage.isLoad <= `DISABLE;
       nextStage.isLoadUnsigned <= `DISABLE;
@@ -39,7 +69,8 @@ module execute(
     else begin
       nextStage.pc <= prev.nextStage.pc;
       nextStage.aluResult <= aluResult;
-      nextStage.wData <= prev.nextStage.rs2Data;
+      //nextStage.wData <= prev.nextStage.rs2Data;
+      nextStage.wData <= bypassedRs2;
       nextStage.memAccessWidth <= memAccessWidth;
       nextStage.rdCtrl <= prev.nextStage.rdCtrl;
       nextStage.isStore <= prev.nextStage.isStore;
@@ -53,6 +84,10 @@ module execute(
     .pc(prev.nextStage.pc),
     .rs1(prev.nextStage.rs1Data),
     .rs2(prev.nextStage.rs2Data),
+    .bypassExData(bypassNetwork.BypassExData),
+    .bypassMemData(bypassNetwork.BypassMemData),
+    .op1BypassCtrl(prev.nextStage.op1BypassCtrl),
+    .op2BypassCtrl(prev.nextStage.op2BypassCtrl),
     .imm(prev.nextStage.imm),
     .aluCtrl(prev.nextStage.aluCtrl),
     .alu_op1(alu_op1),

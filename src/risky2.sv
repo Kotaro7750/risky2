@@ -24,6 +24,8 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
 
   ControllerIF controllerIF(clk,rst);
 
+  BypassNetworkIF bypassNetworkIF(clk,rst);
+
   //WD
   logic [31:0]WD_pc;
   logic [31:0]WD_irreg_pc;
@@ -71,17 +73,21 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
     .prev(fetchStageIF),
     .registerFile(registerFileIF),
     .dataHazard(controllerIF),
+    .bypassCtrl(controllerIF),
     .pc_WB(WD_pc)
   );
 
   execute execute(
     .port(executeStageIF),
-    .prev(decodeStageIF)
+    .prev(decodeStageIF),
+    .bypassNetwork(bypassNetworkIF)
+    //.controller(controllerIF)
   );
 
   memory_access memory_access(
     .port(memoryAccessStageIF),
     .prev(executeStageIF),
+    .bypassNetwork(bypassNetworkIF),
     .uart(uart_IN_data),
     .uart_we(uart_we)
   );

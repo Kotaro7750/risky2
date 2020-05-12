@@ -11,6 +11,8 @@ typedef struct packed {
   PC pc;
   BasicData rs1Data;
   BasicData rs2Data;
+  BypassCtrl op1BypassCtrl;
+  BypassCtrl op2BypassCtrl;
   BasicData imm;
   RDCtrl rdCtrl;
   ALUCtrl aluCtrl;

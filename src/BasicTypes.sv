@@ -52,5 +52,12 @@ package BasicTypes;
   typedef struct packed {
     logic wEnable;
     RegAddr rdAddr;
+    logic isForwardable;
   } RDCtrl ;
+
+  typedef enum logic [1:0]{
+    BYPASS_NONE = 2'd0,
+    BYPASS_EXEC = 2'd1,
+    BYPASS_MEM = 2'd2
+  } BypassCtrl;
 endpackage

@@ -11,30 +11,79 @@ module Controller(
   MemoryAccessStageIF.Controller memoryAccess
 );
 
-  assign port.isDataHazard = isDataHazard(decode.rs1Addr,decode.rs2Addr,decode.aluOp1Type,decode.aluOp2Type,execute.rdCtrl,memoryAccess.rdCtrl,decode.isStore);
+  logic isRs1DataHazard;
+  logic isRs2DataHazard;
+  assign port.isDataHazard = (isRs1DataHazard == `ENABLE || isRs2DataHazard == `ENABLE) ? `ENABLE : `DISABLE;
 
-  function bit isDataHazard;
-    input RegAddr rs1Addr;
-    input RegAddr rs2Addr;
-    input ALUOpType aluOp1Type;
-    input ALUOpType aluOp2Type;
-    input RDCtrl execute;
-    input RDCtrl memoryAccess;
-    input bit isStore;
-
-    begin
-      if (isStore == `ENABLE) begin
-        isDataHazard = ((rs1Addr != 5'd0 && rs1Addr == execute.rdAddr && execute.wEnable == `ENABLE && aluOp1Type == OP_TYPE_REG) 
-                      || (rs1Addr != 5'd0 && rs1Addr == memoryAccess.rdAddr && memoryAccess.wEnable == `ENABLE && aluOp1Type == OP_TYPE_REG)
-                      || (rs2Addr != 5'd0 && rs2Addr == execute.rdAddr && execute.wEnable == `ENABLE)
-                      || (rs2Addr != 5'd0 && rs2Addr == memoryAccess.rdAddr && memoryAccess.wEnable == `ENABLE)) ? `ENABLE : `DISABLE;
-      end
-      else begin
-        isDataHazard = ((rs1Addr != 5'd0 && rs1Addr == execute.rdAddr && execute.wEnable == `ENABLE && aluOp1Type == OP_TYPE_REG) 
-                      || (rs1Addr != 5'd0 && rs1Addr == memoryAccess.rdAddr && memoryAccess.wEnable == `ENABLE && aluOp1Type == OP_TYPE_REG)
-                      || (rs2Addr != 5'd0 && rs2Addr == execute.rdAddr && execute.wEnable == `ENABLE && aluOp2Type == OP_TYPE_REG)
-                      || (rs2Addr != 5'd0 && rs2Addr == memoryAccess.rdAddr && memoryAccess.wEnable == `ENABLE && aluOp2Type == OP_TYPE_REG)) ? `ENABLE : `DISABLE;
-      end
+  always_comb begin
+    //rs1
+    if (decode.aluOp1Type != OP_TYPE_REG) begin
+      isRs1DataHazard = `DISABLE;
+      port.op1BypassCtrl = BYPASS_NONE;
     end
-  endfunction
+
+    else if (decode.rs1Addr == 5'd0) begin
+      isRs1DataHazard = `DISABLE;
+      port.op1BypassCtrl = BYPASS_NONE;
+    end
+
+    else if (!(decode.rs1Addr == execute.rdCtrl.rdAddr && execute.rdCtrl.wEnable == `ENABLE) && !(decode.rs1Addr == memoryAccess.rdCtrl.rdAddr && memoryAccess.rdCtrl.wEnable == `ENABLE)) begin
+      isRs1DataHazard = `DISABLE;
+      port.op1BypassCtrl = BYPASS_NONE;
+    end
+
+    //TODO forwardableかどうか、あとハザード
+    else if (decode.rs1Addr == execute.rdCtrl.rdAddr && execute.rdCtrl.wEnable == `ENABLE && execute.rdCtrl.isForwardable == `ENABLE) begin
+      //isRs1DataHazard = `ENABLE;
+      isRs1DataHazard = `DISABLE;
+      port.op1BypassCtrl = BYPASS_EXEC;
+    end
+
+    //TODO forwardableかどうか、あとハザード
+    else if (decode.rs1Addr == memoryAccess.rdCtrl.rdAddr && memoryAccess.rdCtrl.wEnable == `ENABLE && memoryAccess.rdCtrl.isForwardable == `ENABLE) begin
+      //isRs1DataHazard = `ENABLE;
+      isRs1DataHazard = `DISABLE;
+      port.op1BypassCtrl = BYPASS_MEM;
+    end
+
+    else begin
+      isRs1DataHazard = `ENABLE;
+      port.op1BypassCtrl = BYPASS_NONE;
+    end
+
+    //rs2
+    if (decode.aluOp2Type != OP_TYPE_REG && decode.isStore != `ENABLE) begin
+      isRs2DataHazard = `DISABLE;
+      port.op2BypassCtrl = BYPASS_NONE;
+    end
+
+    else if (decode.rs2Addr == 5'd0) begin
+      isRs2DataHazard = `DISABLE;
+      port.op2BypassCtrl = BYPASS_NONE;
+    end
+
+    else if (!(decode.rs2Addr == execute.rdCtrl.rdAddr && execute.rdCtrl.wEnable == `ENABLE) && !(decode.rs2Addr == memoryAccess.rdCtrl.rdAddr && memoryAccess.rdCtrl.wEnable == `ENABLE)) begin
+      isRs2DataHazard = `DISABLE;
+      port.op2BypassCtrl = BYPASS_NONE;
+    end
+
+    //TODO forwardableかどうか、あとハザード
+    else if (decode.rs2Addr == execute.rdCtrl.rdAddr && execute.rdCtrl.wEnable == `ENABLE && execute.rdCtrl.isForwardable == `ENABLE) begin
+      //isRs2DataHazard = `ENABLE;
+      isRs2DataHazard = `DISABLE;
+      port.op2BypassCtrl = BYPASS_EXEC;
+    end
+
+    //TODO forwardableかどうか、あとハザード
+    else if (decode.rs2Addr == memoryAccess.rdCtrl.rdAddr && memoryAccess.rdCtrl.wEnable == `ENABLE && memoryAccess.rdCtrl.isForwardable == `ENABLE) begin
+      //isRs2DataHazard = `ENABLE;
+      isRs2DataHazard = `DISABLE;
+      port.op2BypassCtrl = BYPASS_MEM;
+    end
+
+    else begin
+      isRs2DataHazard = `ENABLE;
+      port.op2BypassCtrl = BYPASS_NONE;
+    end
+  end
 endmodule

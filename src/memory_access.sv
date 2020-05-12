@@ -6,6 +6,7 @@ import PipelineTypes::*;
 module memory_access(
   MemoryAccessStageIF.ThisStage port,
   ExecuteStageIF.NextStage prev,
+  BypassNetworkIF.MemoryAccessStage bypassNetwork,
   output var [7:0]uart,
   output var logic uart_we
 );
@@ -20,6 +21,7 @@ module memory_access(
   logic hc_access;
 
   assign port.rdCtrl = prev.nextStage.rdCtrl;
+  assign bypassNetwork.MemwData = nextStage.alu_result;
 
   WriteBackStagePipeReg nextStage;
   assign port.nextStage = nextStage;

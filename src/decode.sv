@@ -10,6 +10,7 @@ module decode(
   FetchStageIF.NextStage prev,
   RegisterFileIF.DecodeStage registerFile,
   ControllerIF.DataHazard dataHazard,
+  ControllerIF.DecodeStage bypassCtrl,
   input var [31:0]pc_WB
 );
   
@@ -19,6 +20,7 @@ module decode(
   BasicData imm; //即値
   ALUCtrl aluCtrl;
   logic reg_w_enable; //書き込みの有無
+  logic isForwardable;
   logic isLoad; //ロード命令かどうか
   logic isStore; //ストア命令かどうか
   logic isHalt; //haltかどうか
@@ -45,6 +47,7 @@ module decode(
     .imm(imm), //即値
     .aluCtrl(aluCtrl),
     .wEnable(reg_w_enable), //書き込みの有無
+    .isForwardable(isForwardable),
     .isLoad(isLoad), //ロード命令かどうか
     .isStore(isStore), //ストア命令かどうか
     .isHalt(isHalt) //haltかどうか
@@ -58,9 +61,11 @@ module decode(
       nextStage.pc <= `NOP;
       nextStage.rs1Data <= `NOP;
       nextStage.rs2Data <= `NOP;
+      nextStage.op1BypassCtrl <= BYPASS_NONE;
+      nextStage.op2BypassCtrl <= BYPASS_NONE;
       nextStage.imm <= `NOP;
       nextStage.rdCtrl <= {`DISABLE,`NOP};
-      nextStage.aluCtrl <= {ALU_NOP,OP_TYPE_NONE,OP_TYPE_NONE};
+      nextStage.aluCtrl <= {ALU_NOP,OP_TYPE_NONE,OP_TYPE_NONE,`DISABLE};
       nextStage.isStore <= `DISABLE;
       nextStage.isLoad <= `DISABLE;
       nextStage.isHalt <= `DISABLE;
@@ -70,8 +75,10 @@ module decode(
       nextStage.pc <= prev.nextStage.pc;
       nextStage.rs1Data <= registerFile.rs1Data;
       nextStage.rs2Data <= registerFile.rs2Data;
+      nextStage.op1BypassCtrl <= bypassCtrl.op1BypassCtrl;
+      nextStage.op2BypassCtrl <= bypassCtrl.op2BypassCtrl;
       nextStage.imm <= imm;
-      nextStage.rdCtrl <= {reg_w_enable,rdAddr};
+      nextStage.rdCtrl <= {reg_w_enable,rdAddr,isForwardable};
       nextStage.aluCtrl <= aluCtrl;
       nextStage.isStore <= isStore;
       nextStage.isLoad <= isLoad;

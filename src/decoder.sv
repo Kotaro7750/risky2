@@ -12,6 +12,7 @@ module decoder(
   output var BasicData imm,
   output var ALUCtrl aluCtrl,
   output var wEnable, //レジスタ書き込みの有無
+  output var isForwardable,
   output var isLoad, //ロード命令判定
   output var isStore, //ストア命令判定
   output var isHalt
@@ -43,6 +44,7 @@ module decoder(
         alu_op2_type = OP_TYPE_IMM;
 
         wEnable = `ENABLE;
+        isForwardable = `ENABLE;
         isLoad = `DISABLE;
         isStore = `DISABLE;
         isHalt = `DISABLE;
@@ -111,6 +113,7 @@ module decoder(
         alu_op2_type = OP_TYPE_REG;
 
         wEnable = `ENABLE;
+        isForwardable = `ENABLE;
         isLoad = `DISABLE;
         isStore = `DISABLE;
         isHalt = `DISABLE;
@@ -178,6 +181,7 @@ module decoder(
         alu_op2_type = OP_TYPE_IMM;
 
         wEnable = `ENABLE;
+        isForwardable = `ENABLE;
         isLoad = `DISABLE;
         isStore = `DISABLE;
         isHalt = `DISABLE;
@@ -196,6 +200,7 @@ module decoder(
         alu_op2_type = OP_TYPE_PC;
 
         wEnable = `ENABLE;
+        isForwardable = `ENABLE;
         isLoad = `DISABLE;
         isStore = `DISABLE;
         isHalt = `DISABLE;
@@ -217,6 +222,8 @@ module decoder(
         if (inst_b[11:7] == 5'b00000) begin
           wEnable = `DISABLE; 
         end
+        //TODO もしかしたらできる？
+        isForwardable = `DISABLE;
         isLoad = `DISABLE;
         isStore = `DISABLE;
         isHalt = `DISABLE;
@@ -239,6 +246,8 @@ module decoder(
         if (inst_b[11:7] == 5'b00000) begin
           wEnable = `DISABLE; 
         end
+        //TODO もしかしたらできる？
+        isForwardable = `DISABLE;
         isLoad = `DISABLE;
         isStore = `DISABLE;
         isHalt = `DISABLE;
@@ -257,6 +266,7 @@ module decoder(
         alu_op1_type = OP_TYPE_REG;
         alu_op2_type = OP_TYPE_REG;
 
+        isForwardable = `DISABLE;
         wEnable = `DISABLE;
         isLoad = `DISABLE;
         isStore = `DISABLE;
@@ -303,6 +313,7 @@ module decoder(
         alu_op2_type = OP_TYPE_IMM;
 
         wEnable = `DISABLE;
+        isForwardable = `DISABLE;
         isLoad = `DISABLE;
         isStore = `ENABLE;
         isHalt = `DISABLE;
@@ -335,6 +346,7 @@ module decoder(
         alu_op2_type = OP_TYPE_IMM;
 
         wEnable = `ENABLE;
+        isForwardable = `DISABLE;
         isLoad = `ENABLE;
         isStore = `DISABLE;
         isHalt = `DISABLE;
@@ -377,6 +389,7 @@ module decoder(
       alu_op1_type = OP_TYPE_NONE;
       alu_op2_type = OP_TYPE_NONE;
       wEnable = `DISABLE;
+      isForwardable = `DISABLE;
       isLoad = `DISABLE;
       isStore = `DISABLE;
       isHalt = `ENABLE;
