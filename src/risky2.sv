@@ -26,6 +26,8 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
 
   BypassNetworkIF bypassNetworkIF(clk,rst);
 
+  BranchPredictorIF branchPredictorIF(clk,rst);
+
   //WD
   logic [31:0]WD_pc;
   logic [31:0]WD_irreg_pc;
@@ -61,11 +63,23 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
     .memoryAccess(memoryAccessStageIF)
   );
 
+  BranchPredictor BranchPredictor(
+    .port(branchPredictorIF)
+  );
 
-  fetch fetch(
+  //fetch fetch(
+  //  .port(fetchStageIF),
+  //  .dataHazard(controllerIF),
+  //  .controller(controllerIF),
+  //  .irregularPC(executeStageIF),
+  //  .branchPredictor(branchPredictorIF)
+  //);
+  FetchStage FetchStage(
     .port(fetchStageIF),
     .dataHazard(controllerIF),
-    .irregularPC(executeStageIF)
+    .controller(controllerIF),
+    .irregularPC(executeStageIF),
+    .branchPredictor(branchPredictorIF)
   );
   
   decode decode(
@@ -73,15 +87,15 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
     .prev(fetchStageIF),
     .registerFile(registerFileIF),
     .dataHazard(controllerIF),
-    .bypassCtrl(controllerIF),
+    .controller(controllerIF),
     .pc_WB(WD_pc)
   );
 
   execute execute(
     .port(executeStageIF),
     .prev(decodeStageIF),
-    .bypassNetwork(bypassNetworkIF)
-    //.controller(controllerIF)
+    .bypassNetwork(bypassNetworkIF),
+    .controller(controllerIF)
   );
 
   memory_access memory_access(

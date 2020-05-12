@@ -3,8 +3,9 @@ package PipelineTypes;
 import BasicTypes::*;
 
 typedef struct packed {
- PC pc;
- Instruction inst;
+  PC pc;
+  Instruction inst;
+  logic isBranchTakenPredicted;
 } DecodeStagePipeReg ;
 
 typedef struct packed {
@@ -16,6 +17,7 @@ typedef struct packed {
   BasicData imm;
   RDCtrl rdCtrl;
   ALUCtrl aluCtrl;
+  logic isBranchTakenPredicted;
   logic isStore;
   logic isLoad;
   logic isHalt;

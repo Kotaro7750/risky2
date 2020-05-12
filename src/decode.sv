@@ -10,7 +10,7 @@ module decode(
   FetchStageIF.NextStage prev,
   RegisterFileIF.DecodeStage registerFile,
   ControllerIF.DataHazard dataHazard,
-  ControllerIF.DecodeStage bypassCtrl,
+  ControllerIF.DecodeStage controller,
   input var [31:0]pc_WB
 );
   
@@ -57,7 +57,7 @@ module decode(
   assign registerFile.rs2Addr = rs2Addr;
 
   always_ff@(negedge port.clk) begin
-    if (port.rst == 1'b0 || dataHazard.isDataHazard == `ENABLE) begin
+    if (port.rst == 1'b0 || dataHazard.isDataHazard == `ENABLE || controller.isBranchPredictMiss) begin
       nextStage.pc <= `NOP;
       nextStage.rs1Data <= `NOP;
       nextStage.rs2Data <= `NOP;
@@ -66,6 +66,7 @@ module decode(
       nextStage.imm <= `NOP;
       nextStage.rdCtrl <= {`DISABLE,`NOP};
       nextStage.aluCtrl <= {ALU_NOP,OP_TYPE_NONE,OP_TYPE_NONE,`DISABLE};
+      nextStage.isBranchTakenPredicted <= `DISABLE;
       nextStage.isStore <= `DISABLE;
       nextStage.isLoad <= `DISABLE;
       nextStage.isHalt <= `DISABLE;
@@ -75,11 +76,12 @@ module decode(
       nextStage.pc <= prev.nextStage.pc;
       nextStage.rs1Data <= registerFile.rs1Data;
       nextStage.rs2Data <= registerFile.rs2Data;
-      nextStage.op1BypassCtrl <= bypassCtrl.op1BypassCtrl;
-      nextStage.op2BypassCtrl <= bypassCtrl.op2BypassCtrl;
+      nextStage.op1BypassCtrl <= controller.op1BypassCtrl;
+      nextStage.op2BypassCtrl <= controller.op2BypassCtrl;
       nextStage.imm <= imm;
       nextStage.rdCtrl <= {reg_w_enable,rdAddr,isForwardable};
       nextStage.aluCtrl <= aluCtrl;
+      nextStage.isBranchTakenPredicted <= prev.nextStage.isBranchTakenPredicted;
       nextStage.isStore <= isStore;
       nextStage.isLoad <= isLoad;
       nextStage.isHalt <= isHalt;

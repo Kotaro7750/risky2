@@ -92,4 +92,14 @@ module Controller(
       port.op2BypassCtrl = BYPASS_NONE;
     end
   end
+
+  always_comb begin
+    if (execute.branchTaken != execute.isBranchTakenPredicted) begin
+      port.isBranchPredictMiss = `ENABLE;
+    end
+    else begin
+      port.isBranchPredictMiss = `DISABLE;
+    end
+  end
+
 endmodule

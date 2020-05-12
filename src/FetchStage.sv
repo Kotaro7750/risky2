@@ -11,7 +11,7 @@ import PipelineTypes::*;
 //ジでセットされるまではNOPを送る。
 //前の命令がデコードステージで真の依存を引き起こしたなら、data_hazardとなる。
 //このとき前の命令を送り、pcは更新しない。
-module fetch(
+module FetchStage(
   FetchStageIF.ThisStage port,
   ControllerIF.DataHazard dataHazard,
   ControllerIF.FetchStage controller,
@@ -22,10 +22,6 @@ module fetch(
   logic is_branch_hazard;
   PC pc;
   Instruction raw_inst;
-
-  PC prev_pc;
-  Instruction prev_inst;
-  logic prevIsBranchTakenPredicted;
 
   Instruction inst;
 
@@ -39,19 +35,7 @@ module fetch(
   );
 
   always_ff@(posedge port.clk) begin
-    if (port.rst == 1'b0) begin
-      prev_pc <= 32'd0;
-      prev_inst <= 32'd0;
-      prevIsBranchTakenPredicted <= `DISABLE;
-    end
-    else 
-
-    begin
-      //データハザードのときに流す用の命令
-      prev_pc <= nextStage.pc;
-      prev_inst <= nextStage.inst;
-      prevIsBranchTakenPredicted <= nextStage.isBranchTakenPredicted;
-
+    if (port.rst != 1'b0) begin
       //ストールしてないなら、普通にフェッチする
       if (!is_branch_hazard) begin
         inst <= raw_inst;
@@ -75,9 +59,6 @@ module fetch(
       //真の依存由来のハザードなら、ストールした上でpc、次の命令を滞留。NOPにし
       //ていないのは、デコーダが毎クロック命令を要求するから。
       if (dataHazard.isDataHazard == `ENABLE) begin
-        //nextStage.pc <= prev_pc;
-        //nextStage.inst <= prev_inst;
-        //nextStage.isBranchTakenPredicted <= prevIsBranchTakenPredicted;
         nextStage.pc <= nextStage.pc;
         nextStage.inst <= nextStage.inst;
         nextStage.isBranchTakenPredicted <= nextStage.isBranchTakenPredicted;
@@ -103,18 +84,36 @@ module fetch(
           pc <= pc;
         end
       end
+
+      else if (controller.isBranchPredictMiss == `ENABLE) begin
+          nextStage.pc <= `NOP;
+          nextStage.inst <= `NOP;
+          nextStage.isBranchTakenPredicted <= `DISABLE;
+          pc <= irregularPC.irregPc;
+          is_branch_hazard <= `DISABLE;
+      end
+
       //通常時に分岐命令が来たら、今の命令は流した上で次からストールさせる。
       else if (is_branch(raw_inst) == `ENABLE) begin
-        nextStage.pc <= pc;
-        nextStage.inst <= inst;
-        nextStage.isBranchTakenPredicted <= branchPredictor.isBranchTakenPredicted;
-        is_branch_hazard <= `ENABLE;
+        if (branchPredictor.isBranchTakenPredicted == `ENABLE) begin
+          nextStage.pc <= pc;
+          nextStage.inst <= inst;
+          nextStage.isBranchTakenPredicted <= branchPredictor.isBranchTakenPredicted;
+          is_branch_hazard <= `ENABLE;
+        end
+        else begin
+          nextStage.pc <= pc;
+          nextStage.inst <= inst;
+          nextStage.isBranchTakenPredicted <= branchPredictor.isBranchTakenPredicted;
+          is_branch_hazard <= `DISABLE;
+          pc <= pc + 4;
+        end
       end
       //通常時に通常命令が来たら、pcをインクリメントし、次の命令を送り込む。
       else begin
         nextStage.pc <= pc;
         nextStage.inst <= inst;
-          nextStage.isBranchTakenPredicted <= `DISABLE;
+        nextStage.isBranchTakenPredicted <= `DISABLE;
         pc <= pc + 4;
       end
     end

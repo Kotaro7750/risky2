@@ -6,7 +6,8 @@ import PipelineTypes::*;
 module execute(
   ExecuteStageIF.ThisStage port,
   DecodeStageIF.NextStage prev,
-  BypassNetworkIF.ExecuteStage bypassNetwork
+  BypassNetworkIF.ExecuteStage bypassNetwork,
+  ControllerIF.ExecuteStage controller
 );
 
   logic [31:0]alu_op1;
@@ -55,7 +56,7 @@ module execute(
   end
 
   always_ff@(negedge port.clk) begin
-    if (port.rst == 1'b0) begin
+    if (port.rst == 1'b0 || controller.isBranchPredictMiss) begin
       nextStage.pc <= 32'd0;
       nextStage.aluResult <= 32'd0;
       nextStage.wData <= 32'd0;
@@ -64,18 +65,21 @@ module execute(
       nextStage.isStore <= `DISABLE;
       nextStage.isLoad <= `DISABLE;
       nextStage.isLoadUnsigned <= `DISABLE;
+      port.branchTaken <= `DISABLE;
+      port.isBranchTakenPredicted<= `DISABLE;
       port.irregPc <= 32'd0;
     end
     else begin
       nextStage.pc <= prev.nextStage.pc;
       nextStage.aluResult <= aluResult;
-      //nextStage.wData <= prev.nextStage.rs2Data;
       nextStage.wData <= bypassedRs2;
       nextStage.memAccessWidth <= memAccessWidth;
       nextStage.rdCtrl <= prev.nextStage.rdCtrl;
       nextStage.isStore <= prev.nextStage.isStore;
       nextStage.isLoad <= prev.nextStage.isLoad;
       nextStage.isLoadUnsigned <= isLoadUnsigned;
+      port.branchTaken <= brTaken;
+      port.isBranchTakenPredicted<= prev.nextStage.isBranchTakenPredicted;
       port.irregPc <= irregPc;
     end
   end
