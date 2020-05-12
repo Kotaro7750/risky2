@@ -33,6 +33,7 @@ module bram(
 
   //initial $readmemh("/home/denjo/lecture/3A/experiment/processor/b3exp/benchmarks/Coremark_for_Synthesis/data.hex",mem);
   initial $readmemh("/home/koutarou/develop/risky2/benchmarks/Coremark_for_Synthesis/data.hex",mem);
+  //initial $readmemh("/home/koutarou/develop/risky2/benchmarks/template/data.hex",mem);
   //initial $readmemh("/home/koutarou/develop/risky2/benchmarks/Coremark/data.hex",mem);
   //initial $readmemh("/home/denjo/lecture/3A/experiment/processor/b3exp/risky/risky/risky.srcs/sources_1/new/test.hex",mem);
 endmodule
