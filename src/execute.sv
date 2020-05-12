@@ -7,7 +7,6 @@ module execute(
   ExecuteStageIF.ThisStage port,
   DecodeStageIF.NextStage prev,
   BypassNetworkIF.ExecuteStage bypassNetwork
-  //ControllerIF.ExecuteStage controller
 );
 
   logic [31:0]alu_op1;
@@ -27,19 +26,20 @@ module execute(
   MemoryAccessStagePipeReg nextStage;
   assign port.nextStage = nextStage;
 
+  BasicData bypassedRs1;
   BasicData bypassedRs2;
   always_comb begin
-    //case (op1BypassCtrl)
-    //  BYPASS_NONE: begin
-    //    bypassedRs1 = rs1;
-    //  end
-    //  BYPASS_EXEC: begin
-    //    bypassedRs1 = bypassExData;
-    //  end
-    //  BYPASS_MEM: begin
-    //    bypassedRs1 = bypassMemData;
-    //  end
-    //endcase
+    case (prev.nextStage.op1BypassCtrl)
+      BYPASS_NONE: begin
+        bypassedRs1 = prev.nextStage.rs1Data;
+      end
+      BYPASS_EXEC: begin
+        bypassedRs1 = bypassNetwork.BypassExData;
+      end
+      BYPASS_MEM: begin
+        bypassedRs1 = bypassNetwork.BypassMemData;
+      end
+    endcase
 
     case (prev.nextStage.op2BypassCtrl)
       BYPASS_NONE: begin
@@ -82,12 +82,8 @@ module execute(
 
   exec_switcher exec_switcher(
     .pc(prev.nextStage.pc),
-    .rs1(prev.nextStage.rs1Data),
-    .rs2(prev.nextStage.rs2Data),
-    .bypassExData(bypassNetwork.BypassExData),
-    .bypassMemData(bypassNetwork.BypassMemData),
-    .op1BypassCtrl(prev.nextStage.op1BypassCtrl),
-    .op2BypassCtrl(prev.nextStage.op2BypassCtrl),
+    .rs1(bypassedRs1),
+    .rs2(bypassedRs2),
     .imm(prev.nextStage.imm),
     .aluCtrl(prev.nextStage.aluCtrl),
     .alu_op1(alu_op1),

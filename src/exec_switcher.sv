@@ -9,10 +9,6 @@ module exec_switcher(
   input var [31:0]pc,
   input var [31:0]rs1,
   input var [31:0]rs2,
-  input var BasicData bypassExData,
-  input var BasicData bypassMemData,
-  input var BypassCtrl op1BypassCtrl,
-  input var BypassCtrl op2BypassCtrl,
   input var [31:0]imm,
   input var ALUCtrl aluCtrl,
   output var [31:0]alu_op1,
@@ -21,37 +17,8 @@ module exec_switcher(
   output var [31:0]npc_op2
 );
 
-  BasicData bypassedRs1;
-  BasicData bypassedRs2;
-
-  always_comb begin
-    case (op1BypassCtrl)
-      BYPASS_NONE: begin
-        bypassedRs1 = rs1;
-      end
-      BYPASS_EXEC: begin
-        bypassedRs1 = bypassExData;
-      end
-      BYPASS_MEM: begin
-        bypassedRs1 = bypassMemData;
-      end
-    endcase
-
-    case (op2BypassCtrl)
-      BYPASS_NONE: begin
-        bypassedRs2 = rs2;
-      end
-      BYPASS_EXEC: begin
-        bypassedRs2 = bypassExData;
-      end
-      BYPASS_MEM: begin
-        bypassedRs2 = bypassMemData;
-      end
-    endcase
-  end
-
-  assign alu_op1 = (aluCtrl.aluOp1Type == OP_TYPE_REG) ? bypassedRs1 : (aluCtrl.aluOp1Type == OP_TYPE_IMM) ? imm : (aluCtrl.aluOp1Type == OP_TYPE_PC) ? pc :  32'd0;
-  assign alu_op2 = (aluCtrl.aluOp2Type == OP_TYPE_REG) ? bypassedRs2 : (aluCtrl.aluOp2Type == OP_TYPE_IMM) ? imm : (aluCtrl.aluOp2Type == OP_TYPE_PC) ? pc :  32'd0;
+  assign alu_op1 = (aluCtrl.aluOp1Type == OP_TYPE_REG) ? rs1 : (aluCtrl.aluOp1Type == OP_TYPE_IMM) ? imm : (aluCtrl.aluOp1Type == OP_TYPE_PC) ? pc :  32'd0;
+  assign alu_op2 = (aluCtrl.aluOp2Type == OP_TYPE_REG) ? rs2 : (aluCtrl.aluOp2Type == OP_TYPE_IMM) ? imm : (aluCtrl.aluOp2Type == OP_TYPE_PC) ? pc :  32'd0;
 
   always_comb begin
     case (aluCtrl.aluCode)
