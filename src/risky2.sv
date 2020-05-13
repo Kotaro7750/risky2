@@ -67,13 +67,6 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
     .port(branchPredictorIF)
   );
 
-  //fetch fetch(
-  //  .port(fetchStageIF),
-  //  .dataHazard(controllerIF),
-  //  .controller(controllerIF),
-  //  .irregularPC(executeStageIF),
-  //  .branchPredictor(branchPredictorIF)
-  //);
   FetchStage FetchStage(
     .port(fetchStageIF),
     .dataHazard(controllerIF),

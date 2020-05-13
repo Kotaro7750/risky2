@@ -56,9 +56,17 @@ module FetchStage(
     else 
 
     begin
+      if (controller.isBranchPredictMiss == `ENABLE) begin
+          nextStage.pc <= `NOP;
+          nextStage.inst <= `NOP;
+          nextStage.isBranchTakenPredicted <= `DISABLE;
+          pc <= irregularPC.irregPc;
+          is_branch_hazard <= `DISABLE;
+      end
+
       //真の依存由来のハザードなら、ストールした上でpc、次の命令を滞留。NOPにし
       //ていないのは、デコーダが毎クロック命令を要求するから。
-      if (dataHazard.isDataHazard == `ENABLE) begin
+      else if (dataHazard.isDataHazard == `ENABLE) begin
         nextStage.pc <= nextStage.pc;
         nextStage.inst <= nextStage.inst;
         nextStage.isBranchTakenPredicted <= nextStage.isBranchTakenPredicted;
@@ -85,15 +93,6 @@ module FetchStage(
         end
       end
 
-      else if (controller.isBranchPredictMiss == `ENABLE) begin
-          nextStage.pc <= `NOP;
-          nextStage.inst <= `NOP;
-          nextStage.isBranchTakenPredicted <= `DISABLE;
-          pc <= irregularPC.irregPc;
-          is_branch_hazard <= `DISABLE;
-      end
-
-      //通常時に分岐命令が来たら、今の命令は流した上で次からストールさせる。
       else if (is_branch(raw_inst) == `ENABLE) begin
         if (branchPredictor.isBranchTakenPredicted == `ENABLE) begin
           nextStage.pc <= pc;
