@@ -1,4 +1,4 @@
-# RISK-V32I準拠 パイプラインプロセッサ risky2
+# RISC-V32I準拠 パイプラインプロセッサ risky2
 ## ステージ
 Fetch,Decode,Execute,MemoryAccess,WriteBackの五段構成
 
