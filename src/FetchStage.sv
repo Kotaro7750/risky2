@@ -16,7 +16,8 @@ module FetchStage(
   ControllerIF.DataHazard dataHazard,
   ControllerIF.FetchStage controller,
   ExecuteStageIF.IrregularPC irregularPC,
-  BranchPredictorIF.FetchStage branchPredictor
+  BranchPredictorIF.FetchStage branchPredictor,
+  DebugIF.FetchStage debug
 );
 
   logic is_branch_hazard;
@@ -105,6 +106,8 @@ module FetchStage(
       end
     end
   end
+
+  assign debug.fetchStage = pc;
 
   //ここで分岐命令かチェックする。
   //分岐命令はJAL,JALR,Beq,Bne,Blt,Bge,Bltu,Bgeuで、これらはすべて7bit目が1

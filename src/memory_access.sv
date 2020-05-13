@@ -7,6 +7,7 @@ module memory_access(
   MemoryAccessStageIF.ThisStage port,
   ExecuteStageIF.NextStage prev,
   BypassNetworkIF.MemoryAccessStage bypassNetwork,
+  DebugIF.MemoryAccessStage debug,
   output var [7:0]uart,
   output var logic uart_we
 );
@@ -26,6 +27,8 @@ module memory_access(
   WriteBackStagePipeReg nextStage;
   assign port.nextStage = nextStage;
 
+  assign debug.memoryAccessStage = prev.nextStage;
+
   assign hc_access = (prev.nextStage.aluResult == `HARDWARE_COUNTER_ADDR && prev.nextStage.isLoad) ? `ENABLE : `DISABLE;
   assign r_data = r_data_gen(row_r_data,prev.nextStage.memAccessWidth,prev.nextStage.isLoadUnsigned,offset,hc_access,hc_OUT_data);
 
@@ -42,7 +45,6 @@ module memory_access(
 
   always_ff@(negedge port.clk) begin
     nextStage.pc <= prev.nextStage.pc;
-    nextStage.irreg_pc <= prev.nextStage.irregPc;
     nextStage.r_data <= r_data;
     nextStage.alu_result <= prev.nextStage.aluResult;
     nextStage.is_load <= prev.nextStage.isLoad;

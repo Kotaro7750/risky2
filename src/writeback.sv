@@ -3,9 +3,9 @@
 module writeback(
   WriteBackStageIF.ThisStage port,
   MemoryAccessStageIF.NextStage prev,
-  output var [31:0]WD_pc,
-  output var [31:0]WD_irreg_pc,
-  RegisterFileIF.WriteBackStage registerFile
+  //output var [31:0]WD_pc,
+  RegisterFileIF.WriteBackStage registerFile,
+  DebugIF.WriteBackStage debug
 );
 
   logic [31:0]writeback_data;
@@ -17,10 +17,12 @@ module writeback(
     end 
   end
 
-  assign  WD_pc = prev.nextStage.pc;
-  assign  WD_irreg_pc = prev.nextStage.irreg_pc;
+  //assign  WD_pc = prev.nextStage.pc;
+  assign  registerFile.pc = prev.nextStage.pc;
   assign  registerFile.wData = writeback_data;
   assign registerFile.rdCtrl = prev.nextStage.rdCtrl;
+
+  assign debug.writeBackStage = prev.nextStage;
 
   writeback_gen writeback_gen(
     .is_load(prev.nextStage.is_load),

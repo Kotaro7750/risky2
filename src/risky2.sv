@@ -28,9 +28,10 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
 
   BranchPredictorIF branchPredictorIF(clk,rst);
 
+  DebugIF debugIF(clk,rst);
+
   //WD
   logic [31:0]WD_pc;
-  logic [31:0]WD_irreg_pc;
 
   //pc関係
   logic [31:0] pc;
@@ -52,8 +53,8 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
   );
 
   RegisterFile RegisterFile(
-    .port(registerFileIF),
-    .pc(WD_pc)
+    .port(registerFileIF)
+    //.pc(WD_pc)
   );
 
   Controller Controller(
@@ -74,7 +75,8 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
     .dataHazard(controllerIF),
     .controller(controllerIF),
     .irregularPC(executeStageIF),
-    .branchPredictor(branchPredictorIF)
+    .branchPredictor(branchPredictorIF),
+    .debug(debugIF)
   );
   
   decode decode(
@@ -83,20 +85,22 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
     .registerFile(registerFileIF),
     .dataHazard(controllerIF),
     .controller(controllerIF),
-    .pc_WB(WD_pc)
+    .debug(debugIF)
   );
 
   execute execute(
     .port(executeStageIF),
     .prev(decodeStageIF),
     .bypassNetwork(bypassNetworkIF),
-    .controller(controllerIF)
+    .controller(controllerIF),
+    .debug(debugIF)
   );
 
   memory_access memory_access(
     .port(memoryAccessStageIF),
     .prev(executeStageIF),
     .bypassNetwork(bypassNetworkIF),
+    .debug(debugIF),
     .uart(uart_IN_data),
     .uart_we(uart_we)
   );
@@ -104,8 +108,12 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
   writeback writeback(
     .port(writeBackStageIF),
     .prev(memoryAccessStageIF),
-    .WD_pc(WD_pc),
-    .WD_irreg_pc(WD_irreg_pc),
-    .registerFile(registerFileIF)
+    //.WD_pc(WD_pc),
+    .registerFile(registerFileIF),
+    .debug(debugIF)
+  );
+
+  Debug Debug(
+    .port(debugIF)
   );
 endmodule

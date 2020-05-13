@@ -2,7 +2,7 @@
 
 //クロックエッジで書き込み、読み込みは同期なしのレジスタファイル
 module RegisterFile(
-  input var [31:0] pc,
+  //input var [31:0] pc,
   RegisterFileIF.RegisterFile port
 );
 

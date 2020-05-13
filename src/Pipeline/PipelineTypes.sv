@@ -25,7 +25,6 @@ typedef struct packed {
 
 typedef struct packed {
   PC pc;
-  PC irregPc;
   BasicData aluResult;
   BasicData wData;
   logic [1:0] memAccessWidth;
@@ -37,7 +36,6 @@ typedef struct packed {
 
 typedef struct packed {
   PC pc;
-  PC irreg_pc;
   BasicData r_data;
   BasicData alu_result;
   logic is_load;

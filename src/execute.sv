@@ -7,7 +7,8 @@ module execute(
   ExecuteStageIF.ThisStage port,
   DecodeStageIF.NextStage prev,
   BypassNetworkIF.ExecuteStage bypassNetwork,
-  ControllerIF.ExecuteStage controller
+  ControllerIF.ExecuteStage controller,
+  DebugIF.ExecuteStage debug
 );
 
   logic [31:0]alu_op1;
@@ -26,6 +27,8 @@ module execute(
 
   MemoryAccessStagePipeReg nextStage;
   assign port.nextStage = nextStage;
+
+  assign debug.executeStage = prev.nextStage;
 
   BasicData bypassedRs1;
   BasicData bypassedRs2;

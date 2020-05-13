@@ -6,6 +6,8 @@ interface RegisterFileIF(
   input var logic rst
 );
 
+  PC pc;
+
   RegAddr rs1Addr;
   RegAddr rs2Addr;
   BasicData rs1Data;
@@ -17,6 +19,7 @@ interface RegisterFileIF(
   modport RegisterFile(
     input clk,
     input rst,
+    input pc,
     input rs1Addr,
     input rs2Addr,
     input rdCtrl,
@@ -33,6 +36,7 @@ interface RegisterFileIF(
   );
   
   modport WriteBackStage(
+    output pc,
     output wData,
     output rdCtrl
   );

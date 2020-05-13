@@ -11,7 +11,7 @@ module decode(
   RegisterFileIF.DecodeStage registerFile,
   ControllerIF.DataHazard dataHazard,
   ControllerIF.DecodeStage controller,
-  input var [31:0]pc_WB
+  DebugIF.DecodeStage debug
 );
   
   RegAddr rs1Addr; //rs1アドレス
@@ -34,6 +34,7 @@ module decode(
   assign port.aluOp2Type = aluCtrl.aluOp2Type;
   assign port.isStore = isStore;
   
+  assign debug.decodeStage = prev.nextStage;
 
   //クロック同期ではなく、入力によってデコード結果を垂れ流すだけ。意味付けは
   //decodeで行う。
