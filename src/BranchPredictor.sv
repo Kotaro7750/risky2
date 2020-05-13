@@ -6,6 +6,7 @@ import PipelineTypes::*;
 
 module BranchPredictor(
   BranchPredictorIF.BranchPredictor port,
+  ControllerIF.BranchPredictor controller,
   ExecuteStageIF.BranchPredictor execute
 );
 
@@ -53,24 +54,23 @@ module BranchPredictor(
         end
       endcase
     end
-    //とりあえず必ずnot taken
-    //port.isBranchTakenPredicted <= `DISABLE;
   end
 
   always_comb begin
-    case (State)
-      2'b00: begin
-        port.isBranchTakenPredicted = `DISABLE;
-      end
-      2'b01: begin
-        port.isBranchTakenPredicted = `DISABLE;
-      end
-      2'b10: begin
-        port.isBranchTakenPredicted = `ENABLE;
-      end
-      2'b11: begin
-        port.isBranchTakenPredicted = `ENABLE;
-      end
-    endcase
+    port.isBranchTakenPredicted = `DISABLE;
+    //case (State)
+    //  2'b00: begin
+    //    port.isBranchTakenPredicted = `DISABLE;
+    //  end
+    //  2'b01: begin
+    //    port.isBranchTakenPredicted = `DISABLE;
+    //  end
+    //  2'b10: begin
+    //    port.isBranchTakenPredicted = `ENABLE;
+    //  end
+    //  2'b11: begin
+    //    port.isBranchTakenPredicted = `ENABLE;
+    //  end
+    //endcase
   end
 endmodule

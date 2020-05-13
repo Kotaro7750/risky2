@@ -38,4 +38,8 @@ interface ControllerIF(
     input isBranchPredictMiss
   );
 
+  modport BranchPredictor(
+    input isBranchPredictMiss
+  );
+
 endinterface : ControllerIF

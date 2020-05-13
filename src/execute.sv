@@ -56,7 +56,8 @@ module execute(
   end
 
   always_ff@(negedge port.clk) begin
-    if (port.rst == 1'b0 || controller.isBranchPredictMiss) begin
+    //if (port.rst == 1'b0 || controller.isBranchPredictMiss) begin
+    if (port.rst == 1'b0) begin
       nextStage.pc <= 32'd0;
       nextStage.aluResult <= 32'd0;
       nextStage.wData <= 32'd0;
@@ -65,10 +66,10 @@ module execute(
       nextStage.isStore <= `DISABLE;
       nextStage.isLoad <= `DISABLE;
       nextStage.isLoadUnsigned <= `DISABLE;
-      port.isBranch <= `DISABLE;
-      port.branchTaken <= `DISABLE;
-      port.isBranchTakenPredicted<= `DISABLE;
-      port.irregPc <= 32'd0;
+      //port.isBranch <= `DISABLE;
+      //port.branchTaken <= `DISABLE;
+      //port.isBranchTakenPredicted<= `DISABLE;
+      //port.irregPc <= 32'd0;
     end
     else begin
       nextStage.pc <= prev.nextStage.pc;
@@ -79,12 +80,17 @@ module execute(
       nextStage.isStore <= prev.nextStage.isStore;
       nextStage.isLoad <= prev.nextStage.isLoad;
       nextStage.isLoadUnsigned <= isLoadUnsigned;
-      port.isBranch <= isBranch;
-      port.branchTaken <= brTaken;
-      port.isBranchTakenPredicted<= prev.nextStage.isBranchTakenPredicted;
-      port.irregPc <= irregPc;
+      //port.isBranch <= isBranch;
+      //port.branchTaken <= brTaken;
+      //port.isBranchTakenPredicted<= prev.nextStage.isBranchTakenPredicted;
+      //port.irregPc <= irregPc;
     end
   end
+
+  assign port.isBranch = port.rst == 1'b0 ? `DISABLE : isBranch;
+  assign port.branchTaken = port.rst == 1'b0 ? `DISABLE : brTaken;
+  assign port.isBranchTakenPredicted = port.rst == 1'b0 ? `DISABLE : prev.nextStage.isBranchTakenPredicted;
+  assign port.irregPc = port.rst == 1'b0 ? 32'd0 : irregPc;
 
   exec_switcher exec_switcher(
     .pc(prev.nextStage.pc),

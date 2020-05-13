@@ -65,6 +65,7 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
 
   BranchPredictor BranchPredictor(
     .port(branchPredictorIF),
+    .controller(controllerIF),
     .execute(executeStageIF)
   );
 
