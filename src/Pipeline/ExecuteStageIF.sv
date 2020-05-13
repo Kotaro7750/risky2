@@ -7,6 +7,7 @@ interface ExecuteStageIF(
 );
 
   PC irregPc;
+  logic isBranch;
   logic branchTaken;
   logic isBranchTakenPredicted;
   MemoryAccessStagePipeReg nextStage;
@@ -18,6 +19,7 @@ interface ExecuteStageIF(
     input rst,
     output nextStage,
     output rdCtrl,
+    output isBranch,
     output branchTaken,
     output isBranchTakenPredicted,
     output irregPc
@@ -35,6 +37,11 @@ interface ExecuteStageIF(
     input branchTaken,
     input isBranchTakenPredicted,
     input rdCtrl
+  );
+
+  modport BranchPredictor(
+    input isBranch,
+    input branchTaken
   );
 
 endinterface : ExecuteStageIF
