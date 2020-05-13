@@ -34,19 +34,6 @@ module FetchStage(
     .inst(raw_inst)
   );
 
-  //always_ff@(posedge port.clk) begin
-  //  if (port.rst != 1'b0) begin
-  //    //ストールしてないなら、普通にフェッチする
-  //    if (!is_branch_hazard) begin
-  //      inst <= raw_inst;
-  //    end
-
-  //    //ストールしているなら、前回の命令を滞留させる。ストール明けに使えるようにするため。
-  //    else begin
-  //      inst <= inst;
-  //    end
-  //  end
-  //end
   assign inst = raw_inst;
 
   always_ff@(negedge port.clk) begin

@@ -66,10 +66,6 @@ module execute(
       nextStage.isStore <= `DISABLE;
       nextStage.isLoad <= `DISABLE;
       nextStage.isLoadUnsigned <= `DISABLE;
-      //port.isBranch <= `DISABLE;
-      //port.branchTaken <= `DISABLE;
-      //port.isBranchTakenPredicted<= `DISABLE;
-      //port.irregPc <= 32'd0;
     end
     else begin
       nextStage.pc <= prev.nextStage.pc;
@@ -80,10 +76,6 @@ module execute(
       nextStage.isStore <= prev.nextStage.isStore;
       nextStage.isLoad <= prev.nextStage.isLoad;
       nextStage.isLoadUnsigned <= isLoadUnsigned;
-      //port.isBranch <= isBranch;
-      //port.branchTaken <= brTaken;
-      //port.isBranchTakenPredicted<= prev.nextStage.isBranchTakenPredicted;
-      //port.irregPc <= irregPc;
     end
   end
 
