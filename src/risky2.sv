@@ -54,7 +54,6 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
 
   RegisterFile RegisterFile(
     .port(registerFileIF)
-    //.pc(WD_pc)
   );
 
   Controller Controller(
@@ -67,6 +66,12 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
   BranchPredictor BranchPredictor(
     .port(branchPredictorIF),
     .controller(controllerIF),
+    .execute(executeStageIF)
+  );
+
+  BTB BTB(
+    .clk(clk),
+    .fetch(fetchStageIF),
     .execute(executeStageIF)
   );
 

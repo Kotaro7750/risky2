@@ -6,6 +6,8 @@ typedef struct packed {
   PC pc;
   Instruction inst;
   logic isBranchTakenPredicted;
+  logic isNextPcPredicted;
+  PC predictedNextPC;
 } DecodeStagePipeReg ;
 
 typedef struct packed {
@@ -18,6 +20,8 @@ typedef struct packed {
   RDCtrl rdCtrl;
   ALUCtrl aluCtrl;
   logic isBranchTakenPredicted;
+  logic isNextPcPredicted;
+  PC predictedNextPC;
   logic isStore;
   logic isLoad;
   logic isHalt;

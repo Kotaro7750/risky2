@@ -85,7 +85,10 @@ module execute(
   assign port.isBranch = port.rst == 1'b0 ? `DISABLE : isBranch;
   assign port.branchTaken = port.rst == 1'b0 ? `DISABLE : brTaken;
   assign port.isBranchTakenPredicted = port.rst == 1'b0 ? `DISABLE : prev.nextStage.isBranchTakenPredicted;
+  assign port.isNextPcPredicted = port.rst == 1'b0 ? `DISABLE : prev.nextStage.isNextPcPredicted;
+  assign port.predictedNextPC = port.rst == 1'b0 ? 32'd0 : prev.nextStage.predictedNextPC;
   assign port.irregPc = port.rst == 1'b0 ? 32'd0 : irregPc;
+  assign port.pc = port.rst == 1'b0 ? 32'd0 : prev.nextStage.pc;
 
   exec_switcher exec_switcher(
     .pc(prev.nextStage.pc),

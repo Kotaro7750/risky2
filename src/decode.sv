@@ -68,6 +68,8 @@ module decode(
       nextStage.rdCtrl <= {`DISABLE,`NOP};
       nextStage.aluCtrl <= {ALU_NOP,OP_TYPE_NONE,OP_TYPE_NONE,`DISABLE};
       nextStage.isBranchTakenPredicted <= `DISABLE;
+      nextStage.isNextPcPredicted <= `DISABLE;
+      nextStage.predictedNextPC <= `NOP;
       nextStage.isStore <= `DISABLE;
       nextStage.isLoad <= `DISABLE;
       nextStage.isHalt <= `DISABLE;
@@ -83,6 +85,8 @@ module decode(
       nextStage.rdCtrl <= {reg_w_enable,rdAddr,isForwardable};
       nextStage.aluCtrl <= aluCtrl;
       nextStage.isBranchTakenPredicted <= prev.nextStage.isBranchTakenPredicted;
+      nextStage.isNextPcPredicted <= prev.nextStage.isNextPcPredicted;
+      nextStage.predictedNextPC <= prev.nextStage.predictedNextPC;
       nextStage.isStore <= isStore;
       nextStage.isLoad <= isLoad;
       nextStage.isHalt <= isHalt;

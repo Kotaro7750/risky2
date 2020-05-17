@@ -49,6 +49,7 @@ module FetchStage(
           nextStage.pc <= `NOP;
           nextStage.inst <= `NOP;
           nextStage.isBranchTakenPredicted <= `DISABLE;
+            nextStage.isNextPcPredicted <= `DISABLE;
           pc <= irregularPC.irregPc;
           is_branch_hazard <= `DISABLE;
       end
@@ -59,6 +60,7 @@ module FetchStage(
         nextStage.pc <= nextStage.pc;
         nextStage.inst <= nextStage.inst;
         nextStage.isBranchTakenPredicted <= nextStage.isBranchTakenPredicted;
+        nextStage.isNextPcPredicted <= nextStage.isNextPcPredicted;
         pc <= pc;
       end
       //ストール中
@@ -69,6 +71,7 @@ module FetchStage(
           nextStage.pc <= `NOP;
           nextStage.inst <= `NOP;
           nextStage.isBranchTakenPredicted <= `DISABLE;
+          nextStage.isNextPcPredicted <= `DISABLE;
           pc <= irregularPC.irregPc;
           is_branch_hazard <= `DISABLE;
         end
@@ -78,6 +81,7 @@ module FetchStage(
           nextStage.pc <= `NOP;
           nextStage.inst <= `NOP;
           nextStage.isBranchTakenPredicted <= `DISABLE;
+          nextStage.isNextPcPredicted <= `DISABLE;
           pc <= pc;
         end
       end
@@ -87,12 +91,23 @@ module FetchStage(
           nextStage.pc <= pc;
           nextStage.inst <= inst;
           nextStage.isBranchTakenPredicted <= branchPredictor.isBranchTakenPredicted;
-          is_branch_hazard <= `ENABLE;
+          //is_branch_hazard <= `ENABLE;
+          if (port.btbHit) begin
+            is_branch_hazard <= `DISABLE;
+            pc <= port.btbPredictedPc;
+            nextStage.isNextPcPredicted <= `ENABLE;
+            nextStage.predictedNextPC <= port.btbPredictedPc;
+          end
+          else begin
+            is_branch_hazard <= `ENABLE;
+            nextStage.isNextPcPredicted <= `DISABLE;
+          end
         end
         else begin
           nextStage.pc <= pc;
           nextStage.inst <= inst;
           nextStage.isBranchTakenPredicted <= branchPredictor.isBranchTakenPredicted;
+          nextStage.isNextPcPredicted <= `DISABLE;
           is_branch_hazard <= `DISABLE;
           pc <= pc + 4;
         end
@@ -102,12 +117,14 @@ module FetchStage(
         nextStage.pc <= pc;
         nextStage.inst <= inst;
         nextStage.isBranchTakenPredicted <= `DISABLE;
+        nextStage.isNextPcPredicted <= `DISABLE;
         pc <= pc + 4;
       end
     end
   end
 
   assign debug.fetchStage = pc;
+  assign port.pc = pc;
 
   //ここで分岐命令かチェックする。
   //分岐命令はJAL,JALR,Beq,Bne,Blt,Bge,Bltu,Bgeuで、これらはすべて7bit目が1
