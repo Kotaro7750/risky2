@@ -14,8 +14,8 @@ module inst_mem(
   //initial $readmemh("/home/koutarou/develop/risky2/benchmarks/tests/LoadAndStore/code.hex",instRAM);
   //initial $readmemh("/home/koutarou/develop/risky2/benchmarks/tests/Uart/code.hex",instRAM);
   //initial $readmemh("/home/koutarou/develop/risky2/benchmarks/tests/HardwareCounter/code.hex",instRAM);
-  //initial $readmemh("/home/koutarou/develop/risky2/benchmarks/Coremark_for_Synthesis/prog.hex",instRAM);
-  initial $readmemh("/home/koutarou/develop/risky2/benchmarks/Coremark_for_Synthesis_for_debug/prog.hex",instRAM);
+  initial $readmemh("/home/koutarou/develop/risky2/benchmarks/Coremark_for_Synthesis/prog.hex",instRAM);
+  //initial $readmemh("/home/koutarou/develop/risky2/benchmarks/Coremark_for_Synthesis_for_debug/prog.hex",instRAM);
   //initial $readmemh("/home/koutarou/develop/risky2/benchmarks/template/code.hex",instRAM);
   //initial $readmemh("/home/koutarou/develop/risky2/benchmarks/Coremark/prog.hex",instRAM);
 endmodule

@@ -56,10 +56,28 @@ module execute(
         bypassedRs2 = bypassNetwork.BypassMemData;
       end
     endcase
+
+    if (port.rst == 1'b0) begin
+      port.isBranch = `DISABLE;
+      port.branchTaken = `DISABLE;
+      port.isBranchTakenPredicted = `DISABLE;
+      port.isNextPcPredicted = `DISABLE;
+      port.predictedNextPC = 32'd0;
+      port.irregPc = 32'd0;
+      port.pc = 32'd0;
+    end
+    else begin
+      port.isBranch = isBranch;
+      port.branchTaken = brTaken;
+      port.isBranchTakenPredicted = prev.nextStage.isBranchTakenPredicted;
+      port.isNextPcPredicted = prev.nextStage.isNextPcPredicted;
+      port.predictedNextPC = prev.nextStage.predictedNextPC;
+      port.irregPc = irregPc;
+      port.pc = prev.nextStage.pc;
+    end
   end
 
   always_ff@(negedge port.clk) begin
-    //if (port.rst == 1'b0 || controller.isBranchPredictMiss) begin
     if (port.rst == 1'b0) begin
       nextStage.pc <= 32'd0;
       nextStage.aluResult <= 32'd0;
@@ -81,14 +99,6 @@ module execute(
       nextStage.isLoadUnsigned <= isLoadUnsigned;
     end
   end
-
-  assign port.isBranch = port.rst == 1'b0 ? `DISABLE : isBranch;
-  assign port.branchTaken = port.rst == 1'b0 ? `DISABLE : brTaken;
-  assign port.isBranchTakenPredicted = port.rst == 1'b0 ? `DISABLE : prev.nextStage.isBranchTakenPredicted;
-  assign port.isNextPcPredicted = port.rst == 1'b0 ? `DISABLE : prev.nextStage.isNextPcPredicted;
-  assign port.predictedNextPC = port.rst == 1'b0 ? 32'd0 : prev.nextStage.predictedNextPC;
-  assign port.irregPc = port.rst == 1'b0 ? 32'd0 : irregPc;
-  assign port.pc = port.rst == 1'b0 ? 32'd0 : prev.nextStage.pc;
 
   exec_switcher exec_switcher(
     .pc(prev.nextStage.pc),
