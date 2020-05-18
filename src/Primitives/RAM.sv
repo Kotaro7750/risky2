@@ -10,6 +10,7 @@ module BlockDualPortRAM #(
   parameter ENTRY_BIT_SIZE = 32
 )(
   input var logic clk,
+  input var logic rst,
   input var logic wEnable,
   input var [$clog2(ENTRY_NUM)-1:0] wAddr,
   input var [ENTRY_BIT_SIZE-1:0] wData,
@@ -18,9 +19,14 @@ module BlockDualPortRAM #(
 );
 
   logic [ENTRY_BIT_SIZE-1:0] Array[ENTRY_NUM];
-  //assign rData = Array[rAddr];
 
   always_ff@(posedge clk) begin
+    //if (rst == 1'b0) begin
+    //  for (int i = 0; i < ENTRY_NUM; i++) begin
+    //    Array[i] <= {ENTRY_BIT_SIZE{1'b0}};
+    //  end
+    //end
+    //else if (wEnable) begin
     if (wEnable) begin
       Array[wAddr] <= wData;
     end

@@ -15,7 +15,8 @@ module FetchStage(
   FetchStageIF.ThisStage port,
   ControllerIF.DataHazard dataHazard,
   ControllerIF.FetchStage controller,
-  ExecuteStageIF.IrregularPC irregularPC,
+  //ExecuteStageIF.IrregularPC irregularPC,
+  MemoryAccessStageIF.IrregularPC irregularPC,
   BranchPredictorIF.FetchStage branchPredictor,
   DebugIF.FetchStage debug
 );
@@ -49,7 +50,8 @@ module FetchStage(
           nextStage.pc <= `NOP;
           nextStage.inst <= `NOP;
           nextStage.isBranchTakenPredicted <= `DISABLE;
-            nextStage.isNextPcPredicted <= `DISABLE;
+          nextStage.isNextPcPredicted <= `DISABLE;
+          nextStage.predictedNextPC <= 32'd0;
           pc <= irregularPC.irregPc;
           is_branch_hazard <= `DISABLE;
       end
@@ -61,6 +63,7 @@ module FetchStage(
         nextStage.inst <= nextStage.inst;
         nextStage.isBranchTakenPredicted <= nextStage.isBranchTakenPredicted;
         nextStage.isNextPcPredicted <= nextStage.isNextPcPredicted;
+        nextStage.predictedNextPC <= nextStage.predictedNextPC;
         pc <= pc;
       end
       //ストール中
@@ -72,6 +75,7 @@ module FetchStage(
           nextStage.inst <= `NOP;
           nextStage.isBranchTakenPredicted <= `DISABLE;
           nextStage.isNextPcPredicted <= `DISABLE;
+          nextStage.predictedNextPC <= 32'd0;
           pc <= irregularPC.irregPc;
           is_branch_hazard <= `DISABLE;
         end
@@ -82,6 +86,7 @@ module FetchStage(
           nextStage.inst <= `NOP;
           nextStage.isBranchTakenPredicted <= `DISABLE;
           nextStage.isNextPcPredicted <= `DISABLE;
+          nextStage.predictedNextPC <= 32'd0;
           pc <= pc;
         end
       end
@@ -101,6 +106,7 @@ module FetchStage(
           else begin
             is_branch_hazard <= `ENABLE;
             nextStage.isNextPcPredicted <= `DISABLE;
+            nextStage.predictedNextPC <= 32'd0;
           end
         end
         else begin
@@ -108,6 +114,7 @@ module FetchStage(
           nextStage.inst <= inst;
           nextStage.isBranchTakenPredicted <= branchPredictor.isBranchTakenPredicted;
           nextStage.isNextPcPredicted <= `DISABLE;
+          nextStage.predictedNextPC <= 32'd0;
           is_branch_hazard <= `DISABLE;
           pc <= pc + 4;
         end

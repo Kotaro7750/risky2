@@ -5,11 +5,12 @@ import BasicTypes::*;
 import PipelineTypes::*;
 import FetchUnitTypes::*;
 
-//TODO パラメータ周り定数化
 module BTB(
   input var logic clk,
+  input var logic rst,
   FetchStageIF.BTB fetch,
-  ExecuteStageIF.BTB execute
+  //ExecuteStageIF.BTB execute
+  MemoryAccessStageIF.BTB execute
 );
   
   PC pc;
@@ -37,6 +38,7 @@ module BTB(
     )
     btbArray(
       .clk(clk),
+      .rst(rst),
       .wEnable(wEnable),
       .wAddr(wBtbIndex),
       .wData(wBtbEntry),

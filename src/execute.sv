@@ -78,12 +78,19 @@ module execute(
   end
 
   always_ff@(negedge port.clk) begin
-    if (port.rst == 1'b0) begin
+    //if (port.rst == 1'b0) begin
+    if (port.rst == 1'b0 || controller.isBranchPredictMiss) begin
       nextStage.pc <= 32'd0;
       nextStage.aluResult <= 32'd0;
       nextStage.wData <= 32'd0;
       nextStage.memAccessWidth <= 2'd0;
       nextStage.rdCtrl <= {`DISABLE,5'd0,`DISABLE};
+      nextStage.isBranch <= `DISABLE;
+      nextStage.branchTaken <= `DISABLE;
+      nextStage.isBranchTakenPredicted <= `DISABLE;
+      nextStage.isNextPcPredicted <= `DISABLE;
+      nextStage.predictedNextPC <= 32'd0;
+      nextStage.irregPc <= 32'd0;
       nextStage.isStore <= `DISABLE;
       nextStage.isLoad <= `DISABLE;
       nextStage.isLoadUnsigned <= `DISABLE;
@@ -94,6 +101,12 @@ module execute(
       nextStage.wData <= bypassedRs2;
       nextStage.memAccessWidth <= memAccessWidth;
       nextStage.rdCtrl <= prev.nextStage.rdCtrl;
+      nextStage.isBranch <= isBranch;
+      nextStage.branchTaken <= brTaken;
+      nextStage.isBranchTakenPredicted <= prev.nextStage.isBranchTakenPredicted;
+      nextStage.isNextPcPredicted <= prev.nextStage.isBranchTakenPredicted;
+      nextStage.predictedNextPC <= prev.nextStage.predictedNextPC;
+      nextStage.irregPc <= irregPc;
       nextStage.isStore <= prev.nextStage.isStore;
       nextStage.isLoad <= prev.nextStage.isLoad;
       nextStage.isLoadUnsigned <= isLoadUnsigned;

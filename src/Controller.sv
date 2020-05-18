@@ -95,7 +95,8 @@ module Controller(
 
   always_comb begin
     //TODO 分岐する予測してかつ実際に分岐した場合でも分岐先がおかしければミスになる
-    if ((execute.branchTaken != execute.isBranchTakenPredicted) || (execute.predictedNextPC != execute.irregPc && execute.isBranchTakenPredicted && execute.branchTaken)) begin
+    //if ((execute.branchTaken != execute.isBranchTakenPredicted) || (execute.predictedNextPC != execute.irregPc && execute.isBranchTakenPredicted && execute.branchTaken)) begin
+    if ((memoryAccess.branchTaken != memoryAccess.isBranchTakenPredicted) || (memoryAccess.predictedNextPC != memoryAccess.irregPc && memoryAccess.isBranchTakenPredicted && memoryAccess.branchTaken)) begin
       port.isBranchPredictMiss = `ENABLE;
     end
     else begin
