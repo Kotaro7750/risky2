@@ -1,6 +1,7 @@
 package PipelineTypes;
 
 import BasicTypes::*;
+import OpTypes::*;
 
 typedef struct packed {
   PC pc;
@@ -26,6 +27,20 @@ typedef struct packed {
   logic isLoad;
   logic isHalt;
 } ExecuteStagePipeReg ;
+
+typedef struct packed {
+  PC pc;
+  BasicData rs1Data;
+  BasicData rs2Data;
+  RegAddr rdAddr;
+  BypassCtrl op1BypassCtrl;
+  BypassCtrl op2BypassCtrl;
+  BasicData imm;
+  OpInfo opInfo;
+  logic isBranchTakenPredicted;
+  logic isNextPcPredicted;
+  PC predictedNextPC;
+} ModifiedExecuteStagePipeReg ;
 
 typedef struct packed {
   PC pc;

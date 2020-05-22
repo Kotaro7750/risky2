@@ -12,7 +12,8 @@ interface DecodeStageIF(
   ALUOpType aluOp2Type;
   logic isStore;
 
-  ExecuteStagePipeReg nextStage;
+  //ExecuteStagePipeReg nextStage;
+  ModifiedExecuteStagePipeReg nextStage;
 
   modport ThisStage(
     input clk,

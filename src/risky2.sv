@@ -84,7 +84,8 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
     .debug(debugIF)
   );
   
-  decode decode(
+  //decode decode(
+  DecodeStage DecodeStage(
     .port(decodeStageIF),
     .prev(fetchStageIF),
     .registerFile(registerFileIF),
@@ -93,7 +94,8 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
     .debug(debugIF)
   );
 
-  execute execute(
+  //execute execute(
+  ExecuteStage ExecuteStage(
     .port(executeStageIF),
     .prev(decodeStageIF),
     .bypassNetwork(bypassNetworkIF),
