@@ -1,10 +1,15 @@
 `timescale 1ns / 1ps
 
 module inst_mem(
+  input var logic clk,
   input var [31:0]pc,
   output var [31:0]inst
 );
   logic [31:0] instRAM [0:32767];             //32bitレジスタ*32
+
+  //always_ff@(posedge clk) begin
+  //  inst <= instRAM[pc >> 2];
+  //end
 
   assign inst = instRAM[pc >> 2];
   //initial $readmemh("/home/koutarou/develop/risky2/benchmarks/tests/IntRegReg/code.hex",instRAM);

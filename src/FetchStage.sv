@@ -31,6 +31,7 @@ module FetchStage(
 
   //読み込みのみで、クロック同期なしで繋がっている。
   inst_mem inst_mem(
+    .clk(clk),
     .pc(pc),
     .inst(raw_inst)
   );

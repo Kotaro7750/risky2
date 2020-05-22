@@ -5,7 +5,6 @@ import BasicTypes::*;
 import PipelineTypes::*;
 import FetchUnitTypes::*;
 
-//TODO パラメータ周り定数化
 module BTB(
   input var logic clk,
   FetchStageIF.BTB fetch,
