@@ -20,6 +20,10 @@ function automatic void DecodeI(
     opInfo.aluCtrl.aluOp1Type = OP_TYPE_REG;
     opInfo.aluCtrl.aluOp2Type = OP_TYPE_IMM;
 
+    opInfo.isMulDiv = `DISABLE;
+    opInfo.mulDivCode = MULDIV_MUL;
+
+
     unique case (funct3)
       //ADD,SUB
       3'b000: begin
@@ -96,8 +100,11 @@ function automatic void DecodeR(
     opInfo.aluCtrl.aluOp1Type = OP_TYPE_REG;
     opInfo.aluCtrl.aluOp2Type = OP_TYPE_REG;
 
+    opInfo.isMulDiv = `DISABLE;
+    opInfo.mulDivCode = MULDIV_MUL;
+
     unique case (funct3)
-      //ADD,SUB
+      //ADD,SUB,MUL
       3'b000: begin
         unique case (funct7)
           7'b0000000: begin
@@ -106,28 +113,61 @@ function automatic void DecodeR(
           7'b0100000: begin
             opInfo.aluCtrl.aluCode = ALU_SUB;
           end
+          7'b0000001: begin
+            opInfo.aluCtrl.aluCode = ALU_NONE;
+            opInfo.isMulDiv = `ENABLE;
+            opInfo.mulDivCode = MULDIV_MUL;
+          end
           default : begin
             opInfo.aluCtrl.aluCode = ALU_NONE;
           end
         endcase
       end
-      //SLL
+      //SLL,MULH
       3'b001: begin
-        opInfo.aluCtrl.aluCode = ALU_SLL;
+        if (funct7 == 7'b0000001) begin
+          opInfo.aluCtrl.aluCode = ALU_NONE;
+          opInfo.isMulDiv = `ENABLE;
+          opInfo.mulDivCode = MULDIV_MULH;
+        end
+        else begin
+          opInfo.aluCtrl.aluCode = ALU_SLL;
+        end
       end
-      //SLT
+      //SLT,MULHsu
       3'b010: begin
-        opInfo.aluCtrl.aluCode = ALU_SLT;
+        if (funct7 == 7'b0000001) begin
+          opInfo.aluCtrl.aluCode = ALU_NONE;
+          opInfo.isMulDiv = `ENABLE;
+          opInfo.mulDivCode = MULDIV_MULHSU;
+        end
+        else begin
+          opInfo.aluCtrl.aluCode = ALU_SLT;
+        end
       end
-      //SLTU
+      //SLTU,MULHu
       3'b011: begin
-        opInfo.aluCtrl.aluCode = ALU_SLTU;
+        if (funct7 == 7'b0000001) begin
+          opInfo.aluCtrl.aluCode = ALU_NONE;
+          opInfo.isMulDiv = `ENABLE;
+          opInfo.mulDivCode = MULDIV_MULHU;
+        end
+        else begin
+          opInfo.aluCtrl.aluCode = ALU_SLTU;
+        end
       end
-      //XOR
+      //XOR,DIV
       3'b100: begin
-        opInfo.aluCtrl.aluCode = ALU_XOR;
+        if (funct7 == 7'b0000001) begin
+          opInfo.aluCtrl.aluCode = ALU_NONE;
+          opInfo.isMulDiv = `ENABLE;
+          opInfo.mulDivCode = MULDIV_DIV;
+        end
+        else begin
+          opInfo.aluCtrl.aluCode = ALU_XOR;
+        end
       end
-      //SRL,SRA
+      //SRL,SRA,DIVu
       3'b101: begin
         unique case (funct7)
           7'b0000000: begin
@@ -136,18 +176,37 @@ function automatic void DecodeR(
           7'b0100000: begin
             opInfo.aluCtrl.aluCode = ALU_SRA;
           end
+          7'b0000001: begin
+            opInfo.aluCtrl.aluCode = ALU_NONE;
+            opInfo.isMulDiv = `ENABLE;
+            opInfo.mulDivCode = MULDIV_DIVU;
+          end
           default : begin
             opInfo.aluCtrl.aluCode = ALU_NONE;
           end
         endcase
       end
-      //OR
+      //OR,REM
       3'b110: begin
-        opInfo.aluCtrl.aluCode = ALU_OR;
+        if (funct7 == 7'b0000001) begin
+          opInfo.aluCtrl.aluCode = ALU_NONE;
+          opInfo.isMulDiv = `ENABLE;
+          opInfo.mulDivCode = MULDIV_REM;
+        end
+        else begin
+          opInfo.aluCtrl.aluCode = ALU_OR;
+        end
       end
       //AND
       3'b111: begin
-        opInfo.aluCtrl.aluCode = ALU_AND;
+        if (funct7 == 7'b0000001) begin
+          opInfo.aluCtrl.aluCode = ALU_NONE;
+          opInfo.isMulDiv = `ENABLE;
+          opInfo.mulDivCode = MULDIV_REMU;
+        end
+        else begin
+          opInfo.aluCtrl.aluCode = ALU_AND;
+        end
       end
       default : begin
         opInfo.aluCtrl.aluCode = ALU_NONE;
@@ -180,6 +239,10 @@ function automatic void DecodeU(
     opInfo.opType = TYPE_U;
 
     opInfo.aluCtrl.aluCode = ALU_ADD;
+
+    opInfo.isMulDiv = `DISABLE;
+    opInfo.mulDivCode = MULDIV_MUL;
+
 
     case (opCode)
       RISCV_LUI: begin
@@ -226,6 +289,10 @@ function automatic void DecodeJ(
 
     opInfo.brCtrl = BR_JUMP;
 
+    opInfo.isMulDiv = `DISABLE;
+    opInfo.mulDivCode = MULDIV_MUL;
+
+
     opInfo.wEnable = rdAddr == 5'd0 ? `DISABLE : `ENABLE;
     opInfo.memAccessWidth = MEM_NONE;
     opInfo.isForwardable = `DISABLE;
@@ -255,6 +322,10 @@ function automatic void DecodeJALR(
 
     opInfo.brCtrl = BR_JUMP;
 
+    opInfo.isMulDiv = `DISABLE;
+    opInfo.mulDivCode = MULDIV_MUL;
+
+
     opInfo.wEnable = rdAddr == 5'd0 ? `DISABLE : `ENABLE;
     opInfo.memAccessWidth = MEM_NONE;
     opInfo.isForwardable = `DISABLE;
@@ -283,6 +354,10 @@ function automatic void DecodeB(
     //opInfo.aluCtrl.aluOp2Type = OP_TYPE_NONE;
     opInfo.aluCtrl.aluOp1Type = OP_TYPE_REG;
     opInfo.aluCtrl.aluOp2Type = OP_TYPE_REG;
+
+    opInfo.isMulDiv = `DISABLE;
+    opInfo.mulDivCode = MULDIV_MUL;
+
 
     opInfo.wEnable = `DISABLE;
     opInfo.memAccessWidth = MEM_NONE;
@@ -336,6 +411,10 @@ function automatic void DecodeST(
 
     opInfo.brCtrl = BR_NONE;
 
+    opInfo.isMulDiv = `DISABLE;
+    opInfo.mulDivCode = MULDIV_MUL;
+
+
     opInfo.wEnable = `DISABLE;
     opInfo.isForwardable = `DISABLE;
     opInfo.isStore = `ENABLE;
@@ -379,6 +458,10 @@ function automatic void DecodeLD(
     opInfo.aluCtrl.aluOp2Type = OP_TYPE_IMM;
 
     opInfo.brCtrl = BR_NONE;
+
+    opInfo.isMulDiv = `DISABLE;
+    opInfo.mulDivCode = MULDIV_MUL;
+
 
     opInfo.wEnable = rdAddr == 5'd0 ? `DISABLE : `ENABLE;
     opInfo.isForwardable = `DISABLE;

@@ -16,6 +16,7 @@ module ExecuteStage(
   logic [31:0]npc_op1;
   logic [31:0]npc_op2;
   logic [31:0]aluResult;
+  logic [31:0]mulDivResult;
   logic [31:0]irregPc;
   logic brTaken;
   //logic isBranch;
@@ -89,7 +90,8 @@ module ExecuteStage(
     end
     else begin
       nextStage.pc <= prev.nextStage.pc;
-      nextStage.aluResult <= aluResult;
+      nextStage.aluResult <= prev.nextStage.opInfo.isMulDiv ? mulDivResult : aluResult;
+      //nextStage.aluResult <= aluResult;
       nextStage.wData <= bypassedRs2;
       nextStage.memAccessWidth <= prev.nextStage.opInfo.memAccessWidth;
       nextStage.rdCtrl <= {prev.nextStage.opInfo.wEnable,prev.nextStage.rdAddr,prev.nextStage.opInfo.isForwardable};
@@ -117,6 +119,13 @@ module ExecuteStage(
     .op1(alu_op1),
     .op2(alu_op2),
     .aluResult(aluResult)
+  );
+
+  MulDivUnit MulDivUnit(
+  .mulDivCode(prev.nextStage.opInfo.mulDivCode),
+  .op1(alu_op1),
+  .op2(alu_op2),
+  .result(mulDivResult)
   );
 
   BranchResolver BranchResolver(

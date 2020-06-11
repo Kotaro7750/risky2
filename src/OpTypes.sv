@@ -42,10 +42,12 @@ package OpTypes;
   typedef struct packed {
     OpType opType;
     ALUCtrl aluCtrl;
+    MulDivCode mulDivCode;
     BranchResolverCtrl brCtrl;
     logic wEnable;
     logic isForwardable;
     MemoryAccessWidth memAccessWidth;
+    logic isMulDiv;
     logic isBranch;
     logic isStore;
     logic isLoad;

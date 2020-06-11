@@ -20,7 +20,7 @@ module DecodeStage(
   BasicData imm; //即値
   OpInfo opInfo;
 
-  ModifiedExecuteStagePipeReg nextStage;
+  ExecuteStagePipeReg nextStage;
   assign port.nextStage = nextStage;
 
   assign port.rs1Addr = rs1Addr;

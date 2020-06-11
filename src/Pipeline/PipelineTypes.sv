@@ -15,23 +15,6 @@ typedef struct packed {
   PC pc;
   BasicData rs1Data;
   BasicData rs2Data;
-  BypassCtrl op1BypassCtrl;
-  BypassCtrl op2BypassCtrl;
-  BasicData imm;
-  RDCtrl rdCtrl;
-  ALUCtrl aluCtrl;
-  logic isBranchTakenPredicted;
-  logic isNextPcPredicted;
-  PC predictedNextPC;
-  logic isStore;
-  logic isLoad;
-  logic isHalt;
-} ExecuteStagePipeReg ;
-
-typedef struct packed {
-  PC pc;
-  BasicData rs1Data;
-  BasicData rs2Data;
   RegAddr rdAddr;
   BypassCtrl op1BypassCtrl;
   BypassCtrl op2BypassCtrl;
@@ -40,7 +23,7 @@ typedef struct packed {
   logic isBranchTakenPredicted;
   logic isNextPcPredicted;
   PC predictedNextPC;
-} ModifiedExecuteStagePipeReg ;
+} ExecuteStagePipeReg ;
 
 typedef struct packed {
   PC pc;
