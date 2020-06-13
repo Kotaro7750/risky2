@@ -8,6 +8,7 @@ interface ControllerIF(
 
   BypassCtrl op1BypassCtrl;
   BypassCtrl op2BypassCtrl;
+  logic isStructureStall;
   logic isDataHazard;
   logic isBranchPredictMiss;
 
@@ -25,17 +26,20 @@ interface ControllerIF(
   );
 
   modport FetchStage(
+    input isStructureStall,
     input isBranchPredictMiss
   );
 
   modport DecodeStage(
     input op1BypassCtrl,
     input op2BypassCtrl,
+    input isStructureStall,
     input isBranchPredictMiss
   );
 
   modport ExecuteStage(
-    input isBranchPredictMiss
+    input isBranchPredictMiss,
+    output isStructureStall
   );
 
   modport BranchPredictor(

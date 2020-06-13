@@ -44,7 +44,11 @@ module DecodeStage(
   assign registerFile.rs2Addr = rs2Addr;
 
   always_ff@(negedge port.clk) begin
-    if (port.rst == 1'b0 || dataHazard.isDataHazard == `ENABLE || controller.isBranchPredictMiss) begin
+    if (controller.isStructureStall) begin
+      nextStage <= nextStage;
+    end
+
+    else if (port.rst == 1'b0 || dataHazard.isDataHazard == `ENABLE || controller.isBranchPredictMiss) begin
       nextStage.pc <= `NOP;
       nextStage.rs1Data <= `NOP;
       nextStage.rs2Data <= `NOP;
@@ -59,6 +63,10 @@ module DecodeStage(
       nextStage.isNextPcPredicted <= `DISABLE;
       nextStage.predictedNextPC <= `NOP;
     end
+
+    //else if (controller.isStructureStall) begin
+    //  nextStage <= nextStage;
+    //end
 
     else begin
       nextStage.pc <= prev.nextStage.pc;

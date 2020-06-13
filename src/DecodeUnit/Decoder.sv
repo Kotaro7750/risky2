@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-`include "define.svh"
+`include "../define.svh"
 
 import BasicTypes::*;
 import PipelineTypes::*;
@@ -107,6 +107,8 @@ module Decoder(
       opInfo.aluCtrl.aluCode = ALU_NONE;
       opInfo.aluCtrl.aluOp1Type = OP_TYPE_NONE;
       opInfo.aluCtrl.aluOp2Type = OP_TYPE_NONE;
+      opInfo.isMulDiv = `DISABLE;
+      opInfo.mulDivCode = MULDIV_MUL;
       opInfo.brCtrl = BR_NONE;
       opInfo.wEnable = `DISABLE;
       opInfo.isForwardable = `DISABLE;

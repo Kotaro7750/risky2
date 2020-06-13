@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-`include "define.svh"
+`include "../define.svh"
 
 import BasicTypes::*;
 import PipelineTypes::*;

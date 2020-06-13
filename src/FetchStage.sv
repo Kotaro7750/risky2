@@ -50,14 +50,14 @@ module FetchStage(
           nextStage.pc <= `NOP;
           nextStage.inst <= `NOP;
           nextStage.isBranchTakenPredicted <= `DISABLE;
-            nextStage.isNextPcPredicted <= `DISABLE;
+          nextStage.isNextPcPredicted <= `DISABLE;
           pc <= irregularPC.irregPc;
           is_branch_hazard <= `DISABLE;
       end
 
       //真の依存由来のハザードなら、ストールした上でpc、次の命令を滞留。NOPにし
       //ていないのは、デコーダが毎クロック命令を要求するから。
-      else if (dataHazard.isDataHazard == `ENABLE) begin
+      else if (dataHazard.isDataHazard == `ENABLE || controller.isStructureStall == `ENABLE) begin
         nextStage.pc <= nextStage.pc;
         nextStage.inst <= nextStage.inst;
         nextStage.isBranchTakenPredicted <= nextStage.isBranchTakenPredicted;

@@ -78,7 +78,7 @@ module ExecuteStage(
   end
 
   always_ff@(negedge port.clk) begin
-    if (port.rst == 1'b0) begin
+    if (port.rst == 1'b0 || controller.isStructureStall) begin
       nextStage.pc <= 32'd0;
       nextStage.aluResult <= 32'd0;
       nextStage.wData <= 32'd0;
@@ -121,16 +121,19 @@ module ExecuteStage(
     .aluResult(aluResult)
   );
 
-  MulDivUnit MulDivUnit(
-  .mulDivCode(prev.nextStage.opInfo.mulDivCode),
-  .op1(alu_op1),
-  .op2(alu_op2),
-  .result(mulDivResult)
+  MultiStageMulDiv MultiStageMulDiv(
+    .clk(port.clk),
+    .rst(port.rst),
+    .isMulDiv(prev.nextStage.opInfo.isMulDiv),
+    .mulDivCode(prev.nextStage.opInfo.mulDivCode),
+    .op1(alu_op1),
+    .op2(alu_op2),
+    .isStructureStall(controller.isStructureStall),
+    .result(mulDivResult)
   );
 
   BranchResolver BranchResolver(
     .pc(prev.nextStage.pc),
-    //.opType(prev.nextStage.opInfo.opType),
     .isBranch(prev.nextStage.opInfo.isBranch),
     .brCtrl(prev.nextStage.opInfo.brCtrl),
     .imm(prev.nextStage.imm),
