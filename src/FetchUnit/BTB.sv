@@ -8,7 +8,11 @@ import FetchUnitTypes::*;
 module BTB(
   input var logic clk,
   FetchStageIF.BTB fetch,
+  `ifndef BRANCH_M
   ExecuteStageIF.BTB execute
+  `else
+  MemoryAccessStageIF.BTB memoryAccess
+  `endif
 );
   
   PC pc;
@@ -23,10 +27,17 @@ module BTB(
   BTBIndex rBtbIndex;
 
   always_ff@(posedge clk) begin
+  `ifndef BRANCH_M
     pc <= execute.pc;
     isBranch <= execute.isBranch;
     branchTaken <= execute.branchTaken;
     irregPc <= execute.irregPc;
+  `else
+    pc <= memoryAccess.pc;
+    isBranch <= memoryAccess.isBranch;
+    branchTaken <= memoryAccess.branchTaken;
+    irregPc <= memoryAccess.irregPc;
+  `endif
   end
 
   generate
@@ -45,7 +56,6 @@ module BTB(
   endgenerate
 
   always_comb begin
-    //if (execute.isBranch && execute.branchTaken) begin
     if (isBranch && branchTaken) begin
       wEnable = `ENABLE;
     end
@@ -63,9 +73,6 @@ module BTB(
 
     rBtbIndex = ToBTB_Index(fetch.pc);
 
-    //wBtbIndex = ToBTB_Index(execute.pc);
-    //wBtbEntry.tag = ToBTB_Tag(execute.pc);
-    //wBtbEntry.content = ToBTB_Content(execute.irregPc);
     wBtbIndex = ToBTB_Index(pc);
     wBtbEntry.tag = ToBTB_Tag(pc);
     wBtbEntry.content = ToBTB_Content(irregPc);

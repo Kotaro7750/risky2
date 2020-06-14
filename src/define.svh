@@ -1,6 +1,9 @@
 `define ENABLE  1'b1
 `define DISABLE 1'b0
 
+//条件分岐確定ステージ
+`define BRANCH_M 
+
 //fetchデバッグ用
 `define NOP 32'd0
 `define NON_BRANCH_A 32'b00000000000000000000000010000000 //1に書き込み

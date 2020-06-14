@@ -21,7 +21,7 @@ module MultiStageMulDiv(
   BasicData op1FF;
   BasicData op2FF;
 
-  MulDivUnit2 MulDivUnit2(
+  MulDivUnit MulDivUnit(
     .clk(clk),
     .mulDivCode(mulDivCodeFF),
     .op1(op1FF),
@@ -41,7 +41,7 @@ module MultiStageMulDiv(
       op1FF <= op1;
       op2FF <= op2;
     end
-    else if (state == 6'd7) begin
+    else if (state == 6'd8) begin
       state <= 6'd0;
       isStructureStall <= `DISABLE;
       result <= mulDivResult;

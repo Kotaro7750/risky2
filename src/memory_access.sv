@@ -43,6 +43,30 @@ module memory_access(
     .r_data(row_r_data)
   );
 
+  
+`ifdef BRANCH_M
+  always_comb begin
+    if (port.rst == 1'b0) begin
+      port.isBranch = `DISABLE;
+      port.branchTaken = `DISABLE;
+      port.isBranchTakenPredicted = `DISABLE;
+      port.isNextPcPredicted = `DISABLE;
+      port.predictedNextPC = 32'd0;
+      port.irregPc = 32'd0;
+      port.pc = 32'd0;
+    end
+    else begin
+      port.isBranch = prev.nextStage.isBranch;
+      port.branchTaken = prev.nextStage.branchTaken;
+      port.isBranchTakenPredicted = prev.nextStage.isBranchTakenPredicted;
+      port.isNextPcPredicted = prev.nextStage.isNextPcPredicted;
+      port.predictedNextPC = prev.nextStage.predictedNextPC;
+      port.irregPc = prev.nextStage.irregPc;
+      port.pc = prev.nextStage.pc;
+    end
+  end
+`endif
+
   always_ff@(negedge port.clk) begin
     nextStage.pc <= prev.nextStage.pc;
     nextStage.r_data <= r_data;

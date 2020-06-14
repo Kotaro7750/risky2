@@ -19,9 +19,7 @@ module ExecuteStage(
   logic [31:0]mulDivResult;
   logic [31:0]irregPc;
   logic brTaken;
-  //logic isBranch;
 
-  //assign port.rdCtrl = prev.nextStage.rdCtrl;
   assign port.rdCtrl = {prev.nextStage.opInfo.wEnable,prev.nextStage.rdAddr,prev.nextStage.opInfo.isForwardable};
   assign bypassNetwork.ExwData = nextStage.aluResult;
 
@@ -78,12 +76,24 @@ module ExecuteStage(
   end
 
   always_ff@(negedge port.clk) begin
+    `ifndef BRANCH_M
     if (port.rst == 1'b0 || controller.isStructureStall) begin
+    `else
+    if (port.rst == 1'b0 || controller.isStructureStall || controller.isBranchPredictMiss) begin
+    `endif
       nextStage.pc <= 32'd0;
       nextStage.aluResult <= 32'd0;
       nextStage.wData <= 32'd0;
       nextStage.memAccessWidth <= 2'd0;
       nextStage.rdCtrl <= {`DISABLE,5'd0,`DISABLE};
+    `ifdef BRANCH_M
+      nextStage.isBranch <= `DISABLE;
+      nextStage.branchTaken <= `DISABLE;
+      nextStage.isBranchTakenPredicted <= `DISABLE;
+      nextStage.isNextPcPredicted <= `DISABLE;
+      nextStage.predictedNextPC <= 32'd0;
+      nextStage.irregPc <= 32'd0;
+    `endif
       nextStage.isStore <= `DISABLE;
       nextStage.isLoad <= `DISABLE;
       nextStage.isLoadUnsigned <= `DISABLE;
@@ -91,10 +101,17 @@ module ExecuteStage(
     else begin
       nextStage.pc <= prev.nextStage.pc;
       nextStage.aluResult <= prev.nextStage.opInfo.isMulDiv ? mulDivResult : aluResult;
-      //nextStage.aluResult <= aluResult;
       nextStage.wData <= bypassedRs2;
       nextStage.memAccessWidth <= prev.nextStage.opInfo.memAccessWidth;
       nextStage.rdCtrl <= {prev.nextStage.opInfo.wEnable,prev.nextStage.rdAddr,prev.nextStage.opInfo.isForwardable};
+    `ifdef BRANCH_M
+      nextStage.isBranch <= prev.nextStage.opInfo.isBranch;
+      nextStage.branchTaken <= brTaken;
+      nextStage.isBranchTakenPredicted <= prev.nextStage.isBranchTakenPredicted;
+      nextStage.isNextPcPredicted <= prev.nextStage.isBranchTakenPredicted;
+      nextStage.predictedNextPC <= prev.nextStage.predictedNextPC;
+      nextStage.irregPc <= irregPc;
+    `endif
       nextStage.isStore <= prev.nextStage.opInfo.isStore;
       nextStage.isLoad <= prev.nextStage.opInfo.isLoad;
       nextStage.isLoadUnsigned <= prev.nextStage.opInfo.isLoadUnsigned;
@@ -145,7 +162,6 @@ module ExecuteStage(
     .npcOp2(npc_op2),
     .irregPc(irregPc),
     .isBranchTaken(brTaken)
-    //.isBranch(isBranch)
   );
 
 endmodule

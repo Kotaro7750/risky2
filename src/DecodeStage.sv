@@ -44,7 +44,11 @@ module DecodeStage(
   assign registerFile.rs2Addr = rs2Addr;
 
   always_ff@(negedge port.clk) begin
+    `ifndef BRANCH_M
     if (controller.isStructureStall) begin
+    `else
+    if (controller.isStructureStall && !controller.isBranchPredictMiss) begin
+    `endif
       nextStage <= nextStage;
     end
 
@@ -56,17 +60,11 @@ module DecodeStage(
       nextStage.op1BypassCtrl <= BYPASS_NONE;
       nextStage.op2BypassCtrl <= BYPASS_NONE;
       nextStage.imm <= `NOP;
-      //nextStage.rdCtrl <= {`DISABLE,`NOP};
-      //nextStage.aluCtrl <= {ALU_NONE,OP_TYPE_NONE,OP_TYPE_NONE,`DISABLE};
       nextStage.opInfo <= {$bits(OpInfo){1'b0}};
       nextStage.isBranchTakenPredicted <= `DISABLE;
       nextStage.isNextPcPredicted <= `DISABLE;
       nextStage.predictedNextPC <= `NOP;
     end
-
-    //else if (controller.isStructureStall) begin
-    //  nextStage <= nextStage;
-    //end
 
     else begin
       nextStage.pc <= prev.nextStage.pc;

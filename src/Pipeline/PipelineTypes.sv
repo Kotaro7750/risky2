@@ -1,3 +1,4 @@
+`include "define.svh"
 package PipelineTypes;
 
 import BasicTypes::*;
@@ -31,6 +32,14 @@ typedef struct packed {
   BasicData wData;
   logic [1:0] memAccessWidth;
   RDCtrl rdCtrl;
+`ifdef BRANCH_M
+  logic isBranch;
+  logic branchTaken;
+  logic isBranchTakenPredicted;
+  logic isNextPcPredicted;
+  PC predictedNextPC;
+  PC irregPc;
+`endif
   logic isStore;
   logic isLoad;
   logic isLoadUnsigned;

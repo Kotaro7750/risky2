@@ -72,14 +72,22 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
   BTB BTB(
     .clk(clk),
     .fetch(fetchStageIF),
+  `ifndef BRANCH_M
     .execute(executeStageIF)
+  `else
+    .memoryAccess(memoryAccessStageIF)
+  `endif
   );
 
   FetchStage FetchStage(
     .port(fetchStageIF),
     .dataHazard(controllerIF),
     .controller(controllerIF),
+  `ifndef BRANCH_M
     .irregularPC(executeStageIF),
+  `else
+    .irregularPC(memoryAccessStageIF),
+  `endif
     .branchPredictor(branchPredictorIF),
     .debug(debugIF)
   );

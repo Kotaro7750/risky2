@@ -15,7 +15,11 @@ module FetchStage(
   FetchStageIF.ThisStage port,
   ControllerIF.DataHazard dataHazard,
   ControllerIF.FetchStage controller,
+  `ifndef BRANCH_M
   ExecuteStageIF.IrregularPC irregularPC,
+  `else
+  MemoryAccessStageIF.IrregularPC irregularPC,
+  `endif
   BranchPredictorIF.FetchStage branchPredictor,
   DebugIF.FetchStage debug
 );
