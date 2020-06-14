@@ -41,7 +41,7 @@ module MultiStageMulDiv(
       op1FF <= op1;
       op2FF <= op2;
     end
-    else if (state == 6'd15) begin
+    else if (state == 6'd7) begin
       state <= 6'd0;
       isStructureStall <= `DISABLE;
       result <= mulDivResult;
