@@ -16,12 +16,13 @@ module MultiStageMulDiv(
 );
 
   BasicData mulDivResult;
-  logic [4:0] state;
+  logic [5:0] state;
   MulDivCode mulDivCodeFF;
   BasicData op1FF;
   BasicData op2FF;
 
-  MulDivUnit MulDivUnit(
+  MulDivUnit2 MulDivUnit2(
+    .clk(clk),
     .mulDivCode(mulDivCodeFF),
     .op1(op1FF),
     .op2(op2FF),
@@ -31,17 +32,17 @@ module MultiStageMulDiv(
   always_ff@(posedge clk) begin
     if (rst == 1'b0 || !isMulDiv) begin
       isStructureStall <= `DISABLE;
-      state <= 4'd0;
+      state <= 6'd0;
     end
-    else if (isMulDiv && state == 4'd0) begin
+    else if (isMulDiv && state == 6'd0) begin
       isStructureStall <= `ENABLE;
-      state <= 4'd1;
+      state <= 6'd1;
       mulDivCodeFF <= mulDivCode;
       op1FF <= op1;
       op2FF <= op2;
     end
-    else if (state == 4'd15) begin
-      state <= 4'd0;
+    else if (state == 6'd15) begin
+      state <= 6'd0;
       isStructureStall <= `DISABLE;
       result <= mulDivResult;
     end
