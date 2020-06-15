@@ -69,6 +69,7 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
     .execute(executeStageIF)
   );
 
+`ifdef USE_BTB
   BTB BTB(
     .clk(clk),
     .fetch(fetchStageIF),
@@ -78,6 +79,7 @@ module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic
     .memoryAccess(memoryAccessStageIF)
   `endif
   );
+`endif
 
   FetchStage FetchStage(
     .port(fetchStageIF),

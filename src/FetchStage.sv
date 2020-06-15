@@ -96,7 +96,7 @@ module FetchStage(
           nextStage.pc <= pc;
           nextStage.inst <= inst;
           nextStage.isBranchTakenPredicted <= branchPredictor.isBranchTakenPredicted;
-          //is_branch_hazard <= `ENABLE;
+        `ifdef USE_BTB
           if (port.btbHit) begin
             is_branch_hazard <= `DISABLE;
             pc <= port.btbPredictedPc;
@@ -107,6 +107,10 @@ module FetchStage(
             is_branch_hazard <= `ENABLE;
             nextStage.isNextPcPredicted <= `DISABLE;
           end
+        `else
+          is_branch_hazard <= `ENABLE;
+          nextStage.isNextPcPredicted <= `DISABLE;
+        `endif
         end
         else begin
           nextStage.pc <= pc;

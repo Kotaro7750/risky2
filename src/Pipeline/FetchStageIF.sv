@@ -1,3 +1,4 @@
+`include "./define.svh"
 import PipelineTypes::*;
 
 interface FetchStageIF(
@@ -23,11 +24,13 @@ interface FetchStageIF(
     input nextStage
   );
 
+`ifdef USE_BTB
   modport BTB(
     input pc,
     output btbHit,
     output btbPredictedPc
   );
+`endif
 
 endinterface : FetchStageIF
 

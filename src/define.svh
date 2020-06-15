@@ -3,6 +3,8 @@
 
 //条件分岐確定ステージ
 `define BRANCH_M 
+//BTB使うのか
+`define USE_BTB
 
 //fetchデバッグ用
 `define NOP 32'd0

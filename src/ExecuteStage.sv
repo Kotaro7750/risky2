@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+`include "define.svh"
 
 import BasicTypes::*;
 import PipelineTypes::*;
@@ -141,6 +142,9 @@ module ExecuteStage(
   MultiStageMulDiv MultiStageMulDiv(
     .clk(port.clk),
     .rst(port.rst),
+  `ifdef BRANCH_M
+    .isBranchPredictMiss(controller.isBranchPredictMiss),
+  `endif
     .isMulDiv(prev.nextStage.opInfo.isMulDiv),
     .mulDivCode(prev.nextStage.opInfo.mulDivCode),
     .op1(alu_op1),

@@ -7,6 +7,9 @@ import PipelineTypes::*;
 module MultiStageMulDiv(
   input var clk,
   input var rst,
+`ifdef BRANCH_M
+  input var isBranchPredictMiss,
+`endif
   input var isMulDiv,
   input var MulDivCode mulDivCode,
   input var BasicData op1,
@@ -16,7 +19,7 @@ module MultiStageMulDiv(
 );
 
   BasicData mulDivResult;
-  logic [5:0] state;
+  logic [3:0] state;
   MulDivCode mulDivCodeFF;
   BasicData op1FF;
   BasicData op2FF;
@@ -30,19 +33,23 @@ module MultiStageMulDiv(
   );
 
   always_ff@(posedge clk) begin
+  `ifndef BRANCH_M
     if (rst == 1'b0 || !isMulDiv) begin
+  `else
+    if (rst == 1'b0 || !isMulDiv || isBranchPredictMiss) begin
+  `endif
       isStructureStall <= `DISABLE;
-      state <= 6'd0;
+      state <= 4'd0;
     end
-    else if (isMulDiv && state == 6'd0) begin
+    else if (isMulDiv && state == 4'd0) begin
       isStructureStall <= `ENABLE;
-      state <= 6'd1;
+      state <= 4'd1;
       mulDivCodeFF <= mulDivCode;
       op1FF <= op1;
       op2FF <= op2;
     end
-    else if (state == 6'd8) begin
-      state <= 6'd0;
+    else if (state == 4'd7) begin
+      state <= 4'd0;
       isStructureStall <= `DISABLE;
       result <= mulDivResult;
     end

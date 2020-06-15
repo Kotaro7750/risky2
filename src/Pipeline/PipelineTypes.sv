@@ -1,4 +1,4 @@
-`include "define.svh"
+`include "./define.svh"
 package PipelineTypes;
 
 import BasicTypes::*;

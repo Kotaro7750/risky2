@@ -30,7 +30,7 @@ module uart(
 
   reg [28:0] d;
   //wire [28:0] dInc = d[28] ? (115200) : (115200 - 100000000);
-  wire [28:0] dInc = d[28] ? (115200) : (115200 - 80000000);
+  wire [28:0] dInc = d[28] ? (115200) : (115200 - 70000000);
   wire [28:0] dNxt = d + dInc;
   always @(posedge sys_clk_i or negedge sys_rstn_i) begin
     if (!sys_rstn_i) begin
