@@ -57,20 +57,20 @@ module BranchPredictor(
   end
 
   always_comb begin
-    //port.isBranchTakenPredicted = `DISABLE;
-    case (State)
-      2'b00: begin
-        port.isBranchTakenPredicted = `DISABLE;
-      end
-      2'b01: begin
-        port.isBranchTakenPredicted = `DISABLE;
-      end
-      2'b10: begin
-        port.isBranchTakenPredicted = `ENABLE;
-      end
-      2'b11: begin
-        port.isBranchTakenPredicted = `ENABLE;
-      end
-    endcase
+    port.isBranchTakenPredicted = `DISABLE;
+    //case (State)
+    //  2'b00: begin
+    //    port.isBranchTakenPredicted = `DISABLE;
+    //  end
+    //  2'b01: begin
+    //    port.isBranchTakenPredicted = `DISABLE;
+    //  end
+    //  2'b10: begin
+    //    port.isBranchTakenPredicted = `ENABLE;
+    //  end
+    //  2'b11: begin
+    //    port.isBranchTakenPredicted = `ENABLE;
+    //  end
+    //endcase
   end
 endmodule
