@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+//`timescale 1ns / 1ps
 
 //writebackするデータを選択する。
 module writeback_gen(

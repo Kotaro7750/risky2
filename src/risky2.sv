@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+//`timescale 1ns / 1ps
 
 `include "define.svh"
 module risky2(input var logic sysclk,input var logic cpu_resetn,output var logic uart_tx);

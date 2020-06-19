@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+//`timescale 1ns / 1ps
 `include "../define.svh"
 
 import BasicTypes::*;
@@ -12,8 +12,9 @@ module MulDivUnit(
   output var BasicData result
 );
 
-  PipelinedMultiplier PipelinedMultiplier(
-    .clk(clk),
+  //PipelinedMultiplier PipelinedMultiplier(
+  Multiplier Multiplier(
+    //.clk(clk),
     .signOp1(signOp1),
     .op1(op1),
     .signOp2(signOp2),

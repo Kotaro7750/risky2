@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+//`timescale 1ns / 1ps
 
 //クロックエッジで書き込み、読み込みは同期なしのレジスタファイル
 module RegisterFile(

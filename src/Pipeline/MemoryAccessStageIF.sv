@@ -1,4 +1,4 @@
-`include "define.svh"
+`include "../define.svh"
 import PipelineTypes::*;
 
 interface MemoryAccessStageIF(

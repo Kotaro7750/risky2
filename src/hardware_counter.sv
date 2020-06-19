@@ -1,5 +1,4 @@
-`timescale 1ns / 1ps
-//ok
+//`timescale 1ns / 1ps
 
 module hardware_counter(
     input CLK_IP,

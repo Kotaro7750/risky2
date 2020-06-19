@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+//`timescale 1ns / 1ps
 `include "../define.svh"
 
 import BasicTypes::*;
@@ -6,12 +6,32 @@ import PipelineTypes::*;
 import MulDivTypes::*;
 
 module Multiplier(
+  input var logic signOp1,
   input var BasicData op1,
+  input var logic signOp2,
   input var BasicData op2,
-  output var logic [63:0] product
+  output var MulDivResult product
 );
 
-  assign product = op1 * op2;
+  SignExtendedBasicData exOp1;
+  SignExtendedBasicData exOp2;
+
+  SignExtender signExtenderOp1 (
+    .in(op1),
+    .sign(signOp1),
+    .out(exOp1)
+  );
+
+  SignExtender signExtenderOp2 (
+    .in(op2),
+    .sign(signOp2),
+    .out(exOp2)
+  );
+
+  always_comb begin
+    (* use_dsp48 = "yes" *)
+    product = exOp1 * exOp2;  // synthesis syn_dspstyle = "dsp48"
+  end
 
 endmodule
 
